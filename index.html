@@ -4,151 +4,130 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="阿峰的个人入口：计算机专业研0，正在探索人工智能与计算机视觉。">
-  <meta name="theme-color" content="#dfe8e6">
+  <meta name="theme-color" content="#f2f0e9">
   <meta property="og:type" content="profile">
-  <meta property="og:title" content="阿峰｜仍在形成">
-  <meta property="og:description" content="从研0出发，寻找人工智能与计算机视觉中的真实问题。">
+  <meta property="og:title" content="阿峰｜个人入口">
+  <meta property="og:description" content="计算机专业研0，正在探索人工智能与计算机视觉。">
   <meta property="og:image" content="https://bianchengafeng.github.io/assets/avatar.png">
   <link rel="icon" href="./assets/favicon.ico">
   <link rel="stylesheet" href="./styles.css">
   <script src="./app.js" defer></script>
-  <title>阿峰｜仍在形成</title>
+  <title>阿峰｜个人入口</title>
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要内容</a>
 
-  <div class="ambient" aria-hidden="true">
-    <span class="ambient-shape ambient-shape-a"></span>
-    <span class="ambient-shape ambient-shape-b"></span>
-    <span class="ambient-grain"></span>
-  </div>
-
-  <header class="site-header" aria-label="站点页眉">
-    <a class="wordmark" href="#top" aria-label="回到页面顶部">
-      <span class="wordmark-name">AFENG</span>
-      <span class="wordmark-state"><i aria-hidden="true"></i> 仍在形成</span>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="回到页面顶部">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span>阿峰</span>
     </a>
     <nav aria-label="页面导航">
-      <a href="#now">此刻</a>
-      <a href="#path">路径</a>
-      <a href="#elsewhere">别处</a>
+      <a href="#now">现在</a>
+      <a href="#next">下一步</a>
+      <a href="#links">入口</a>
     </nav>
-    <button id="theme-toggle" type="button" aria-label="切换深浅主题" aria-pressed="false">
-      <span aria-hidden="true"></span>
-      <b>明暗</b>
+    <button class="theme-button" id="theme-toggle" type="button" aria-label="切换深浅主题" aria-pressed="false">
+      <span class="theme-icon" aria-hidden="true"></span>
+      <span class="theme-label">深色</span>
     </button>
   </header>
 
   <main id="main">
     <section class="hero" id="top" aria-labelledby="hero-title">
-      <div class="hero-copy">
-        <p class="kicker">计算机专业 · 研 0 · 2026</p>
-        <h1 id="hero-title">先成为问题的<br><em>观察者。</em></h1>
-        <p class="hero-lede">
-          我是阿峰。正在进入人工智能与计算机视觉的世界，方向尚未被一句标签概括。
-          这里记录坐标，不包装终点。
-        </p>
+      <div class="hero-identity">
+        <p class="status"><span aria-hidden="true"></span> 研 0 · 正在形成</p>
+        <h1 id="hero-title">你好，<br>我是阿峰。</h1>
+      </div>
+      <div class="hero-summary">
+        <p class="hero-statement">正在进入人工智能与计算机视觉的世界。</p>
+        <p class="hero-detail">方向仍在探索，成果还不多。这个页面只说明我现在在哪里，并把你带到真正有内容的地方。</p>
         <div class="hero-actions">
-          <a class="action-primary" href="#now">看看我在哪里 <span aria-hidden="true">↓</span></a>
-          <a class="action-quiet" href="https://github.com/bianchengafeng" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+          <a class="button button-primary" href="#now">了解当前状态</a>
+          <a class="button button-plain" href="https://github.com/bianchengafeng" target="_blank" rel="noreferrer">访问 GitHub <span aria-hidden="true">↗</span></a>
         </div>
       </div>
-
-      <div class="liquid-stage" id="liquid-stage" aria-label="随指针轻微变化的液态玻璃视觉">
-        <canvas id="liquid-field" width="800" height="900" aria-hidden="true"></canvas>
-        <div class="lens-shadow" aria-hidden="true"></div>
-        <div class="glass-lens" aria-hidden="true">
-          <div class="lens-glint"></div>
-          <div class="lens-content">
-            <span class="lens-code">AF / 00</span>
-            <strong>未定形</strong>
-            <span class="lens-coordinate" id="coordinate-readout">50.0 — 50.0</span>
-          </div>
-        </div>
-        <p class="stage-note"><span>移动指针</span>，让液面寻找新的焦点。</p>
-      </div>
+      <p class="hero-footnote">Computer Science · AI / Computer Vision</p>
     </section>
 
-    <section class="now section" id="now" aria-labelledby="now-title">
-      <div class="section-marker" aria-hidden="true">01</div>
-      <div class="section-intro">
-        <p class="kicker">此刻 / CURRENT</p>
-        <h2 id="now-title">不多写一层包装。</h2>
-        <p>比起提前摆满“成果”，我更愿意把当前状态说清楚。</p>
-      </div>
-      <dl class="facts">
+    <section class="section now" id="now" aria-labelledby="now-title">
+      <header class="section-header">
+        <p class="section-number">01</p>
+        <h2 id="now-title">现在</h2>
+        <p>不提前包装成一份成熟履历。</p>
+      </header>
+      <dl class="fact-list">
         <div>
           <dt>阶段</dt>
-          <dd>研 0，准备进入研究生阶段</dd>
+          <dd>准备进入研究生阶段</dd>
         </div>
         <div>
-          <dt>注意力</dt>
+          <dt>关注方向</dt>
           <dd>人工智能与计算机视觉</dd>
         </div>
         <div>
-          <dt>正在做</dt>
-          <dd>补足基础、接触问题、积累第一个可检查的结果</dd>
+          <dt>当前任务</dt>
+          <dd>补足基础，接触真实问题，完成第一个可检查的结果</dd>
         </div>
         <div>
-          <dt>暂时不做</dt>
-          <dd>用熟练度数字和空项目卡证明自己</dd>
+          <dt>表达原则</dt>
+          <dd>先做出真实东西，再添加新的身份标签</dd>
         </div>
       </dl>
     </section>
 
-    <section class="path section" id="path" aria-labelledby="path-title">
-      <div class="section-marker" aria-hidden="true">02</div>
-      <div class="section-intro">
-        <p class="kicker">路径 / TRAJECTORY</p>
-        <h2 id="path-title">让发生过的事，决定主页以后长成什么。</h2>
-      </div>
-      <ol class="path-list">
-        <li class="is-active">
-          <span class="path-index">现在</span>
+    <section class="section next" id="next" aria-labelledby="next-title">
+      <header class="section-header">
+        <p class="section-number">02</p>
+        <h2 id="next-title">下一步</h2>
+        <p>这不是时间表，只是当前可验证的前进方式。</p>
+      </header>
+      <ol class="step-list">
+        <li class="step-current">
+          <span class="step-marker" aria-hidden="true"></span>
           <div>
-            <h3>建立可信的起点</h3>
-            <p>梳理数学、编程和机器学习基础，认识视觉问题如何被定义与评价。</p>
+            <p class="step-meta">正在进行</p>
+            <h3>建立可靠的基础</h3>
+            <p>梳理数学、编程与机器学习基础，理解视觉问题如何被定义和评价。</p>
           </div>
-          <span class="path-state">进行中</span>
         </li>
         <li>
-          <span class="path-index">接着</span>
+          <span class="step-marker" aria-hidden="true"></span>
           <div>
-            <h3>做一次完整实验</h3>
-            <p>从数据、基线、评价到复盘，留下别人可以检查和复现的过程。</p>
+            <p class="step-meta">接下来</p>
+            <h3>完成一次完整实验</h3>
+            <p>从数据、基线、评价到复盘，留下可以检查和复现的过程。</p>
           </div>
-          <span class="path-state">未发生</span>
         </li>
         <li>
-          <span class="path-index">以后</span>
+          <span class="step-marker" aria-hidden="true"></span>
           <div>
-            <h3>只为真实成果增加位置</h3>
-            <p>当项目、研究、开源或实习真正出现，再让它们进入这个页面。</p>
+            <p class="step-meta">以后</p>
+            <h3>让真实成果改变这里</h3>
+            <p>项目、研究或开源工作真正出现后，再为它们增加位置。</p>
           </div>
-          <span class="path-state">开放</span>
         </li>
       </ol>
     </section>
 
-    <section class="elsewhere section" id="elsewhere" aria-labelledby="elsewhere-title">
-      <div class="section-marker" aria-hidden="true">03</div>
-      <div class="section-intro">
-        <p class="kicker">别处 / ELSEWHERE</p>
-        <h2 id="elsewhere-title">内容留在它该在的地方。</h2>
-        <p>这里是个人入口，不会再做成第二个博客。</p>
-      </div>
-      <div class="exits">
-        <a href="https://bianchengafeng.xyz" target="_blank" rel="noreferrer">
-          <span class="exit-type">写作</span>
+    <section class="section links" id="links" aria-labelledby="links-title">
+      <header class="section-header">
+        <p class="section-number">03</p>
+        <h2 id="links-title">去往别处</h2>
+        <p>这个站点不复制博客和代码仓库已经承载的内容。</p>
+      </header>
+      <div class="link-cards">
+        <a class="link-card link-card-blog" href="https://bianchengafeng.xyz" target="_blank" rel="noreferrer">
+          <span class="card-type">写作</span>
+          <span class="card-arrow" aria-hidden="true">↗</span>
           <strong>独立博客</strong>
-          <small>技术长文、学习笔记、生活随笔与开发记录</small>
-          <i aria-hidden="true">↗</i>
+          <small>技术长文、学习笔记、生活随笔与开发记录。</small>
         </a>
-        <a href="https://github.com/bianchengafeng" target="_blank" rel="noreferrer">
-          <span class="exit-type">代码</span>
+        <a class="link-card link-card-code" href="https://github.com/bianchengafeng" target="_blank" rel="noreferrer">
+          <span class="card-type">代码</span>
+          <span class="card-arrow" aria-hidden="true">↗</span>
           <strong>GitHub</strong>
-          <small>练习、源码，以及以后真正可复现的成果</small>
-          <i aria-hidden="true">↗</i>
+          <small>练习、源码，以及未来可以复现的成果。</small>
         </a>
       </div>
     </section>
@@ -156,7 +135,7 @@
 
   <footer class="site-footer">
     <p>阿峰的个人入口</p>
-    <p>从真实的起点，慢慢生长。</p>
+    <p>真实地开始，持续地更新。</p>
     <time datetime="2026-07">2026.07</time>
   </footer>
 </body>
