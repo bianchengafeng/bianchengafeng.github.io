@@ -1,22 +1,61 @@
 # bianchengafeng.github.io
 
-阿峰的个人起步页。
+阿峰的个人网站。以「人」为中心，而非以「作品集」或「博客」为中心。
 
-这个站点不承担博客功能。技术长文、学习笔记、生活随笔和项目开发日志继续发布在独立博客；这里仅呈现当前阶段、探索方向、真实成果入口和联系方式。
+包含首页、项目、博客聚合和关于页面。博客内容继续发布在独立站点 [bianchengafeng.xyz](https://bianchengafeng.xyz)，这里只做摘要发现与导流。
 
-## 当前版本
+## 技术栈
 
-- 阶段：研 0
-- 方向：人工智能 / 计算机视觉（探索中）
-- 形式：无框架的静态单页，可直接部署到 GitHub Pages
-- 设计原则：诚实、低维护、可随真实成果逐步生长
+- **React 19** + **Vite 6** 多页面静态构建
+- **liquid-glass-react** 驱动导航栏的实时折射与边缘色散
+- 自动浅色 / 深色双主题，手动切换后写入 localStorage
+- 不蒜子 3.6.9 站点访问统计
+- GitHub Pages 部署，GitHub Actions 自动构建
 
-## 本地预览
+## 页面结构
 
-直接使用任意静态文件服务器打开仓库根目录即可。例如：
+| 路径 | 页面 | 说明 |
+| --- | --- | --- |
+| `/` | Home | 个人总览：当前状态、近期痕迹、观点与输入 |
+| `/about/` | About | 经历、能力边界、生活与兴趣 |
+| `/projects/` | Projects | 代码开源、实践协作、学习实验、研究与发表 |
+| `/writing/` | Blog | 聚合 bianchengafeng.xyz 的标题、日期与摘要 |
+| `/404.html` | 404 | 未知路径统一渲染，显示原始请求地址 |
+
+## 本地开发
 
 ```bash
-python -m http.server 8000
+# 安装依赖
+npm install
+
+# 启动开发服务
+npm run dev
 ```
 
-然后访问 `http://localhost:8000`。
+默认访问 `http://localhost:5173`。
+
+## 生产构建
+
+```bash
+npm run build
+```
+
+产物输出到 `dist/`，包含多页面入口和 404 页面。预览构建结果：
+
+```bash
+npm run preview
+```
+
+## 部署
+
+推送 `main` 分支后，GitHub Actions 自动构建并部署到 GitHub Pages。部署流程定义在 `.github/workflows/deploy-pages.yml`。
+
+首次使用需在仓库 Settings > Pages 中将 Source 切换为 **GitHub Actions**。
+
+## 内容说明
+
+原型阶段的未知兴趣、观点、收藏和项目测试案例均明确标注「测试内容 · 非真实成果」。随着真实内容积累，这些占位将逐步替换。
+
+## License
+
+源码采用 MIT License。个人内容（头像、文案、项目描述等）保留所有权利。
