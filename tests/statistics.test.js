@@ -34,13 +34,22 @@ test("首次访问开启新会话", () => {
 });
 
 test("20分钟内切页或刷新沿用当前会话并续期", () => {
-  const result = updateVisitSession({ id: "current", lastActivityAt: 1000 }, 1000 + WINDOW - 1, WINDOW);
+  const result = updateVisitSession(
+    { id: "current", lastActivityAt: 1000 },
+    1000 + WINDOW - 1,
+    WINDOW
+  );
   assert.equal(result.newSession, false);
   assert.deepEqual(result.session, { id: "current", lastActivityAt: 1000 + WINDOW - 1 });
 });
 
 test("连续20分钟无活动后开启新会话", () => {
-  const result = updateVisitSession({ id: "old", lastActivityAt: 1000 }, 1000 + WINDOW, WINDOW, () => 0.5);
+  const result = updateVisitSession(
+    { id: "old", lastActivityAt: 1000 },
+    1000 + WINDOW,
+    WINDOW,
+    () => 0.5
+  );
   assert.equal(result.newSession, true);
   assert.equal(result.session.id, `${1000 + WINDOW}-0.5`);
 });
@@ -64,9 +73,13 @@ test("损坏的统计缓存被拒绝，合法缓存被规范化", () => {
 
 test("localStorage不可用时回退到下一个存储", () => {
   const blocked = {
-    setItem() { throw new Error("blocked"); },
+    setItem() {
+      throw new Error("blocked");
+    },
     removeItem() {},
-    getItem() { return null; }
+    getItem() {
+      return null;
+    }
   };
   const fallback = new Map();
   fallback.getItem = fallback.get.bind(fallback);

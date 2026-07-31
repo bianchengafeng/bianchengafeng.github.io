@@ -18,11 +18,14 @@ function publishStatistics() {
   if (!Number.isFinite(visitors) || !Number.isFinite(sessions)) return;
 
   completed = true;
-  window.parent.postMessage({
-    type: "afeng:visit-statistics",
-    visitors,
-    sessions
-  }, window.location.origin);
+  window.parent.postMessage(
+    {
+      type: "afeng:visit-statistics",
+      visitors,
+      sessions
+    },
+    window.location.origin
+  );
 }
 
 if (validParent) {

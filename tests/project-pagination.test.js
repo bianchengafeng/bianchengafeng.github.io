@@ -38,7 +38,10 @@ test("项目超过一页时保留正常分页能力", () => {
   assert.equal(pagination.page, 1);
   assert.equal(pagination.pageCount, 2);
   assert.equal(pagination.hasMultiplePages, true);
-  assert.deepEqual(pagination.visibleProjects.map(({ title }) => title), ["项目 4"]);
+  assert.deepEqual(
+    pagination.visibleProjects.map(({ title }) => title),
+    ["项目 4"]
+  );
 });
 
 test("项目删除导致当前页越界时自动回到最后一个合法页面", () => {
@@ -46,5 +49,8 @@ test("项目删除导致当前页越界时自动回到最后一个合法页面",
 
   assert.equal(pagination.page, 0);
   assert.equal(pagination.pageCount, 1);
-  assert.deepEqual(pagination.visibleProjects.map(({ title }) => title), ["项目 1", "项目 2"]);
+  assert.deepEqual(
+    pagination.visibleProjects.map(({ title }) => title),
+    ["项目 1", "项目 2"]
+  );
 });
