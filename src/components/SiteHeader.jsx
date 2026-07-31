@@ -49,6 +49,7 @@ function HeaderInner({ active, theme, onToggleTheme }) {
           title={toggleLabel}
         >
           <Icon name="sun" />
+          <Icon name="moon" />
         </button>
       </div>
     </div>

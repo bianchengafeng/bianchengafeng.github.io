@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 
 const STORAGE_KEY = "theme";
 
@@ -19,15 +19,22 @@ export function useTheme() {
       (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
   );
 
-  useEffect(() => {
+  // 在绘制前写入属性，避免系统暗色首帧闪一下亮色的玻璃高光。
+  useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme;
-    try {
-      localStorage.setItem(STORAGE_KEY, theme);
-    } catch {
-      // 存储不可用时保留内存中的当前主题。
-    }
   }, [theme]);
 
-  const toggleTheme = () => setTheme((value) => (value === "dark" ? "light" : "dark"));
+  // 只有用户显式切换才持久化；仅由系统偏好推断出的主题不写入，
+  // 这样未做过选择的访客可以继续跟随系统深浅色。
+  const toggleTheme = () =>
+    setTheme((value) => {
+      const next = value === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        // 存储不可用时保留内存中的当前主题。
+      }
+      return next;
+    });
   return { theme, toggleTheme };
 }

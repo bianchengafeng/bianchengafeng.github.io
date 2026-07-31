@@ -42,7 +42,7 @@
   position: relative;
   z-index: 1;
   font-size: clamp(112px, 13vw, 210px);
-  font-weight: 720;
+  font-weight: 700;
   line-height: 0.8;
   letter-spacing: -0.06em;
 }
@@ -52,7 +52,7 @@
   bottom: 13%;
   z-index: 2;
   color: var(--muted);
-  font-size: 9px;
+  font-size: var(--text-2xs);
   font-weight: 700;
   letter-spacing: 0.2em;
   transform: translateX(50%);
@@ -61,7 +61,7 @@
 .not-found-copy > span,
 .not-found-path small {
   color: var(--accent-strong);
-  font-size: 9px;
+  font-size: var(--text-2xs);
   font-weight: 700;
   letter-spacing: 0.16em;
 }
@@ -69,7 +69,7 @@
   max-width: 10ch;
   margin-top: 16px;
   font-size: clamp(46px, 5vw, 76px);
-  font-weight: 620;
+  font-weight: 600;
 }
 .not-found-copy p {
   max-width: 46ch;
@@ -88,14 +88,24 @@
   gap: 8px;
   align-items: center;
   min-height: 44px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 600;
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+.not-found-actions a:hover {
+  color: var(--accent-strong);
 }
 .not-found-actions .primary-link {
   padding: 0 18px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--ink);
   color: var(--bg);
+}
+.not-found-actions .primary-link:hover {
+  background: var(--accent-strong);
+  color: var(--on-accent);
 }
 .not-found-path {
   align-self: end;
@@ -109,14 +119,14 @@
   margin-top: 12px;
   color: var(--ink);
   font-family: var(--font);
-  font-size: 14px;
-  font-weight: 650;
+  font-size: var(--text-md);
+  font-weight: 600;
 }
 .not-found-path span {
   display: block;
   margin-top: 8px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 
 @media (max-width: 980px) {
@@ -140,11 +150,13 @@
   }
   .not-found-code {
     min-height: 230px;
+  }
+  .not-found-code > span {
     font-size: clamp(94px, 30vw, 150px);
   }
   .not-found-code small {
     bottom: 8%;
-    font-size: 7px;
+    font-size: var(--text-2xs);
   }
   .not-found-copy h1 {
     font-size: clamp(40px, 12vw, 56px);
