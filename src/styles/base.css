@@ -141,11 +141,15 @@
   border-color: rgba(219, 234, 254, 0.22);
   background: rgba(255, 255, 255, 0.025);
 }
-:root[data-theme="dark"] .header-inner nav a.active {
-  background: rgba(219, 234, 254, 0.12);
+/* 暗色下药丸：高光压低、阴影加黑 */
+:root[data-theme="dark"] .pill-shine {
+  background: rgba(219, 234, 254, 0.09);
   box-shadow:
-    inset 0 1px rgba(255, 255, 255, 0.24),
-    0 0 16px rgba(125, 211, 252, 0.1);
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1.5px 1px rgba(125, 211, 252, 0.22),
+    inset 2px 0 2px -1px rgba(255, 255, 255, 0.24),
+    inset -2px 0 2px -1px rgba(255, 255, 255, 0.24),
+    0 3px 14px rgba(2, 6, 23, 0.5);
 }
 :root[data-theme="dark"] .theme-toggle {
   border-color: rgba(219, 234, 254, 0.24);
@@ -315,8 +319,8 @@ h3 {
   backdrop-filter: none;
 }
 .site-header > .liquid-site-nav > .glass > .glass__warp {
-  -webkit-backdrop-filter: blur(2px) saturate(140%) !important;
-  backdrop-filter: blur(2px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(6px) saturate(140%) !important;
+  backdrop-filter: blur(6px) saturate(140%) !important;
 }
 .liquid-site-nav::before {
   position: absolute;
@@ -412,6 +416,7 @@ h3 {
 }
 .header-inner nav a {
   position: relative;
+  z-index: 2;
   display: grid;
   min-height: 38px;
   padding: 0 17px;
@@ -419,21 +424,69 @@ h3 {
   border-radius: var(--radius-full);
   color: var(--glass-muted);
   font-size: var(--text-xs);
-  transition:
-    color 0.2s,
-    background 0.2s,
-    box-shadow 0.2s;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.25s;
 }
-.header-inner nav a:hover {
-  color: var(--glass-ink);
-  background: rgba(255, 255, 255, 0.14);
-}
+.header-inner nav a:hover,
 .header-inner nav a.active {
-  background: rgba(255, 255, 255, 0.22);
   color: var(--glass-ink);
+}
+
+/* ---- 液态玻璃药丸 v2 招牌版 ---- */
+/* 三层结构：外层容器（定位+弹簧过渡）、中层 pill-warp（SVG 透镜）、内层 pill-shine（高光+扫光） */
+.nav-glass-pill {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  z-index: 1;
+  width: 0;
+  border-radius: var(--radius-full);
+  transition:
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    width 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pill-warp {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  -webkit-backdrop-filter: blur(2px) saturate(170%);
+  backdrop-filter: blur(2px) saturate(170%);
+  filter: url(#pill-lens);
+}
+.pill-shine {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.12);
   box-shadow:
-    0 4px 16px rgba(103, 232, 249, 0.08),
-    inset 0 1px rgba(255, 255, 255, 0.68);
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1.5px 1px rgba(103, 232, 249, 0.3),
+    inset 2px 0 2px -1px rgba(255, 255, 255, 0.5),
+    inset -2px 0 2px -1px rgba(255, 255, 255, 0.5),
+    0 3px 14px rgba(15, 23, 42, 0.16);
+}
+/* 斜向扫光：落位时从左到右扫过 */
+.pill-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.55) 42%,
+    rgba(255, 255, 255, 0.1) 55%,
+    transparent 70%
+  );
+  background-size: 260% 100%;
+  background-position: 100% 0;
+  transition: background-position 0.9s ease;
+}
+.nav-glass-pill.sheen .pill-shine::after {
+  background-position: 0 0;
 }
 .header-actions {
   display: flex;

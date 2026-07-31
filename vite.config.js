@@ -19,7 +19,24 @@ const escapeHtml = (value) =>
 // Vite 用 HTML 的相对路径标识每个入口，"/index.html" 对应根页面。
 const pageByEntry = new Map(pages.map((page) => [`/${page.entry}`, page]));
 
-// 在首次绘制前确定主题，避免存了暗色偏好的访客刷新时闪一下亮色。
+// 液态玻璃药丸所需的 SVG 滤镜（v2 招牌版）。
+// 三通道 feDisplacementMap 产生边缘 RGB 色散（chromatic aberration）。
+// feImage 的 href 由 src/lens-map.js 在客户端生成并注入。
+const lensFiltersSvg = [
+  '<svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true"><defs>',
+  '<filter id="pill-lens" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">',
+  '<feImage class="lens-map" x="0" y="0" width="100%" height="100%" result="MAP" preserveAspectRatio="none"/>',
+  '<feDisplacementMap in="SourceGraphic" in2="MAP" scale="72" xChannelSelector="R" yChannelSelector="B" result="RD"/>',
+  '<feColorMatrix in="RD" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="RC"/>',
+  '<feDisplacementMap in="SourceGraphic" in2="MAP" scale="64" xChannelSelector="R" yChannelSelector="B" result="GD"/>',
+  '<feColorMatrix in="GD" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="GC"/>',
+  '<feDisplacementMap in="SourceGraphic" in2="MAP" scale="56" xChannelSelector="R" yChannelSelector="B" result="BD"/>',
+  '<feColorMatrix in="BD" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="BC"/>',
+  '<feBlend in="GC" in2="BC" mode="screen" result="GB"/>',
+  '<feBlend in="RC" in2="GB" mode="screen"/>',
+  "</filter>",
+  "</defs></svg>"
+].join("\n");
 // 判定逻辑必须与 src/components/useTheme.js 的初始值保持一致。
 const themeBootScript = [
   "(function () {",
@@ -128,6 +145,17 @@ function siteMetadataPlugin() {
               tag: "script",
               injectTo: "head-prepend",
               children: themeBootScript
+            },
+            {
+              tag: "svg",
+              injectTo: "body-prepend",
+              attrs: {
+                width: "0",
+                height: "0",
+                style: "position:absolute;pointer-events:none",
+                "aria-hidden": "true"
+              },
+              children: lensFiltersSvg.replace(/<svg[^>]*>/, "").replace(/<\/svg>$/, "")
             },
             {
               tag: "noscript",
