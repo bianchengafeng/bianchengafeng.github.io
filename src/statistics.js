@@ -103,18 +103,34 @@ export function writeStatisticsCache(statistics) {
   window.dispatchEvent(new CustomEvent(STATS_CACHE_EVENT, { detail: statistics }));
 }
 
-async function withFallbackLock(storage, task) {
-  const token = `${Date.now()}-${Math.random()}`;
+const LOCK_LEASE_MS = 2000;
+const LOCK_SETTLE_MS = 32;
+const LOCK_RETRY_MS = 80;
+// 租约 2 秒，重试上限覆盖它两倍有余；再拿不到就直接执行，
+// 最坏情况只是这一次多计一个会话，不能让页面卡在这里。
+const LOCK_MAX_ATTEMPTS = 60;
 
-  while (true) {
+const delay = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+async function acquireFallbackLock(storage, token) {
+  for (let attempt = 0; attempt < LOCK_MAX_ATTEMPTS; attempt += 1) {
     const current = readJson(storage, SESSION_LOCK_KEY);
     if (!current?.expiresAt || current.expiresAt <= Date.now()) {
-      writeJson(storage, SESSION_LOCK_KEY, { token, expiresAt: Date.now() + 2000 });
-      await new Promise((resolve) => window.setTimeout(resolve, 32));
-      if (readJson(storage, SESSION_LOCK_KEY)?.token === token) break;
+      writeJson(storage, SESSION_LOCK_KEY, { token, expiresAt: Date.now() + LOCK_LEASE_MS });
+      await delay(LOCK_SETTLE_MS);
+      if (readJson(storage, SESSION_LOCK_KEY)?.token === token) return true;
     }
-    await new Promise((resolve) => window.setTimeout(resolve, 80));
+    await delay(LOCK_RETRY_MS);
   }
+  return false;
+}
+
+/** navigator.locks 不可用时的退路：用带租约的存储键近似互斥。 */
+async function withFallbackLock(storage, task) {
+  const token = `${Date.now()}-${Math.random()}`;
+  const acquired = await acquireFallbackLock(storage, token);
+
+  if (!acquired) return task();
 
   try {
     return await task();
@@ -123,7 +139,7 @@ async function withFallbackLock(storage, task) {
       try {
         storage.removeItem(SESSION_LOCK_KEY);
       } catch {
-        // The session decision is already persisted; an expired lease is harmless.
+        // 会话判定已经写入；租约到期后自动失效，残留一把过期锁无害。
       }
     }
   }
