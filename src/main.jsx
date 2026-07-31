@@ -238,21 +238,34 @@ function Footer() {
       setStatText("正式上线后统计");
       return undefined;
     }
-    const markUnavailable = () => statIds.forEach((id) => {
-      const node = document.getElementById(id);
-      if (node && /读取中|加载中/.test(node.textContent || "")) node.textContent = "暂未读取";
-    });
+    const showUnavailable = (node) => {
+      const stat = node?.closest(".footer-stat");
+      if (stat) stat.innerHTML = "<small>STATISTICS</small><span>统计暂不可用</span>";
+    };
+    const validateStat = (node) => {
+      const value = (node?.textContent || "").trim();
+      if (/^\d+$/.test(value) || /读取中|加载中/.test(value)) return;
+      showUnavailable(node);
+    };
+    const statNodes = statIds.map((id) => document.getElementById(id)).filter(Boolean);
+    const observer = new MutationObserver(() => statNodes.forEach(validateStat));
+    statNodes.forEach((node) => observer.observe(node, { childList: true, characterData: true, subtree: true }));
     let script = document.getElementById("busuanzi-counter");
     if (!script) {
       script = document.createElement("script");
       script.id = "busuanzi-counter";
       script.src = "https://cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js";
       script.defer = true;
-      script.onerror = markUnavailable;
+      script.onerror = () => statNodes.forEach(showUnavailable);
       document.body.appendChild(script);
     }
-    const timeout = window.setTimeout(markUnavailable, 8000);
-    return () => window.clearTimeout(timeout);
+    const timeout = window.setTimeout(() => statNodes.forEach((node) => {
+      if (!/^\d+$/.test((node.textContent || "").trim())) showUnavailable(node);
+    }), 8000);
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timeout);
+    };
   }, [localPreview]);
 
   return <footer className="site-footer">
@@ -260,8 +273,8 @@ function Footer() {
       <div className="footer-identity"><span>{identity.siteLabel}</span><strong>感谢到访。</strong><p>这是{identity.name}的个人网站。近况、项目与入口会随真实内容更新。</p></div>
       <div className="footer-utility">
         <div className="footer-stats" aria-label="网站访问统计">
-          <div><small>VISITORS</small><span><strong id="busuanzi_site_uv">读取中</strong> 位访客</span></div>
-          <div><small>PAGE VIEWS</small><span><strong id="busuanzi_site_pv">读取中</strong> 次访问</span></div>
+          <div className="footer-stat"><small>VISITORS</small><span><strong id="busuanzi_site_uv">读取中</strong> 位访客</span></div>
+          <div className="footer-stat"><small>PAGE VIEWS</small><span><strong id="busuanzi_site_pv">读取中</strong> 次访问</span></div>
         </div>
         <nav className="footer-links" aria-label="页脚链接">
           <a href={`mailto:${identity.email}`}>Email <Icon name="arrow"/></a>
