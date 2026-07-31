@@ -7,7 +7,7 @@ import { ProjectsPage } from "./pages/ProjectsPage.jsx";
 import "./site.css";
 
 const base = "/";
-const { identity, home, about, projects, writing, seo } = siteContent;
+const { identity, statistics, home, about, projects, writing, seo } = siteContent;
 
 const navItems = [
   { href: `${base}`, label: "首页", key: "home" },
@@ -229,7 +229,11 @@ function Footer() {
   const localPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname) || window.location.hostname.endsWith(".local");
 
   useEffect(() => {
-    const statIds = ["busuanzi_value_site_uv", "busuanzi_value_site_pv"];
+    const statBaselines = {
+      busuanzi_value_site_uv: statistics.baseline.visitors,
+      busuanzi_value_site_pv: statistics.baseline.pageViews
+    };
+    const statIds = Object.keys(statBaselines);
     const setStatText = (text) => statIds.forEach((id) => {
       const node = document.getElementById(id);
       if (node) node.textContent = text;
@@ -244,8 +248,16 @@ function Footer() {
     };
     const validateStat = (node) => {
       const value = (node?.textContent || "").trim();
-      if (/^\d+$/.test(value) || /读取中|加载中/.test(value)) return;
-      showUnavailable(node);
+      if (value === node?.dataset.counterDisplay || /读取中|加载中/.test(value)) return;
+      if (!/^\d+$/.test(value)) {
+        showUnavailable(node);
+        return;
+      }
+      const current = Number.parseInt(value, 10);
+      const baseline = statBaselines[node.id];
+      const display = Math.max(0, current - baseline).toLocaleString("zh-CN");
+      node.dataset.counterDisplay = display;
+      node.textContent = display;
     };
     const statNodes = statIds.map((id) => document.getElementById(id)).filter(Boolean);
     const observer = new MutationObserver(() => statNodes.forEach(validateStat));
@@ -260,7 +272,8 @@ function Footer() {
       document.body.appendChild(script);
     }
     const timeout = window.setTimeout(() => statNodes.forEach((node) => {
-      if (!/^\d+$/.test((node.textContent || "").trim())) showUnavailable(node);
+      const value = (node.textContent || "").trim();
+      if (value !== node.dataset.counterDisplay && !/^\d+$/.test(value)) showUnavailable(node);
     }), 8000);
     return () => {
       observer.disconnect();
@@ -272,9 +285,9 @@ function Footer() {
     <div className="footer-main">
       <div className="footer-identity"><span>{identity.siteLabel}</span><strong>感谢到访。</strong><p>这是{identity.name}的个人网站。近况、项目与入口会随真实内容更新。</p></div>
       <div className="footer-utility">
-        <div className="footer-stats" aria-label="网站访问统计">
-          <div className="footer-stat"><small>VISITORS</small><span><strong id="busuanzi_value_site_uv">读取中</strong> 位访客</span></div>
-          <div className="footer-stat"><small>PAGE VIEWS</small><span><strong id="busuanzi_value_site_pv">读取中</strong> 次访问</span></div>
+        <div className="footer-stats" aria-label={`自 ${statistics.since} 起的网站访问统计`}>
+          <div className="footer-stat"><small>VISITORS · SINCE {statistics.since}</small><span><strong id="busuanzi_value_site_uv">读取中</strong> 位访客</span></div>
+          <div className="footer-stat"><small>PAGE VIEWS · SINCE {statistics.since}</small><span><strong id="busuanzi_value_site_pv">读取中</strong> 次访问</span></div>
         </div>
         <nav className="footer-links" aria-label="页脚链接">
           <a href={`mailto:${identity.email}`}>Email <Icon name="arrow"/></a>

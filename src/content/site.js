@@ -11,6 +11,14 @@ export const siteContent = {
     lastUpdatedYear: "2026"
   },
 
+  statistics: {
+    since: "2026.07.31",
+    baseline: {
+      visitors: 1844,
+      pageViews: 2078
+    }
+  },
+
   seo: {
     home: {
       title: "阿峰｜个人主页",

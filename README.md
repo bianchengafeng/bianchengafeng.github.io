@@ -59,6 +59,7 @@ npm run preview
 常用修改位置：
 
 - `identity`：名字、邮箱、GitHub、独立博客与版权年份
+- `statistics`：公开访问统计的起始日期和历史基线
 - `home`：此刻状态、近期痕迹、当前观点和最近输入
 - `about`：个人坐标、做事方式与生活兴趣集合
 - `projects.categories[*].items`：按类别增删真实项目，分页自动计算
