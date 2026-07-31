@@ -209,26 +209,6 @@ export const siteContent = {
   },
 
   writing: {
-    feedUrl: "https://bianchengafeng.xyz/index.xml",
-    fallbackPosts: [
-      {
-        title: "Hugo SEO 配置指南",
-        date: "2026.06.06",
-        text: "博客写好了却没人看？本文按基础必做、进阶优化与提交收录三步梳理 Hugo SEO。",
-        link: "https://bianchengafeng.xyz/posts/hugo-seo-guide/"
-      },
-      {
-        title: "使用 Mermaid 绘制流程图",
-        date: "2026.06.06",
-        text: "从流程图开始，逐步覆盖时序图、甘特图与实际使用中的常见问题。",
-        link: "https://bianchengafeng.xyz/posts/mermaid-flowchart/"
-      },
-      {
-        title: "Docker 容器化与轻量级部署实践",
-        date: "2026.06.01",
-        text: "从基本原理到构建生产级、体积更小的静态服务镜像。",
-        link: "https://bianchengafeng.xyz/posts/docker-containerization/"
-      }
-    ]
+    feedUrl: "https://bianchengafeng.xyz/index.xml"
   }
 };

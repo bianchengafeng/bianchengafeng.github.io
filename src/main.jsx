@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import LiquidGlass from "liquid-glass-react";
 import avatarUrl from "../assets/avatar.png";
 import { siteContent } from "./content/site.js";
 import { ProjectsPage } from "./pages/ProjectsPage.jsx";
+import { loadWritingFeed } from "./writing-feed.js";
 import {
   readStatisticsCache,
   recordVisitActivity,
@@ -40,13 +41,21 @@ const Icon = ({ name }) => {
 
 function useTheme() {
   const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
+    try {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
+    } catch {
+      // Theme persistence is optional; the site still follows the system preference.
+    }
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   });
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem("theme", theme);
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      // Keep the current in-memory theme when storage is unavailable.
+    }
   }, [theme]);
   const toggle = () => setTheme((value) => value === "dark" ? "light" : "dark");
   return { theme, toggle };
@@ -195,24 +204,25 @@ function AboutPage() {
 }
 
 function WritingPage() {
-  const fallback = useMemo(() => writing.fallbackPosts, []);
-  const [posts, setPosts] = useState(fallback);
+  const [feedState, setFeedState] = useState({ status: "loading", posts: [] });
   useEffect(() => {
-    fetch(writing.feedUrl).then((response) => response.text()).then((xml) => {
-      const doc = new DOMParser().parseFromString(xml, "application/xml");
-      const items = [...doc.querySelectorAll("item")].slice(0, 5).map((item) => ({
-        title: item.querySelector("title")?.textContent || "未命名文章",
-        link: item.querySelector("link")?.textContent || identity.blogUrl,
-        date: new Date(item.querySelector("pubDate")?.textContent || Date.now()).toLocaleDateString("zh-CN"),
-        text: (item.querySelector("description")?.textContent || "").replace(/<[^>]+>/g, "").slice(0, 100)
-      }));
-      if (items.length) setPosts(items);
-    }).catch(() => {});
-  }, [fallback]);
+    let cancelled = false;
+    loadWritingFeed(writing.feedUrl, identity.blogUrl)
+      .then((posts) => {
+        if (!cancelled) setFeedState({ status: "ready", posts });
+      })
+      .catch(() => {
+        if (!cancelled) setFeedState({ status: "error", posts: [] });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const posts = feedState.posts;
   return <main className="inner-page blog-page">
     <header className="inner-visual-hero blog-visual-hero"><div className="inner-hero-copy"><span>BLOG / 02</span><h1>博客文章，来自另一个长期空间。</h1><p>这里负责发现与导流。技术文章、学习笔记和完整归档继续发布在「阿峰的编程笔记」。</p></div><a className="blog-hero-mark" href={identity.blogUrl} target="_blank" rel="noreferrer" aria-label={`前往${identity.blogName}`}><img src={avatarUrl} alt="" draggable="false"/><div><span>BIANCHENGAFENG.XYZ</span><strong>{identity.blogName}</strong><small>独立博客 · 外部阅读</small></div><Icon name="external"/></a></header>
     <aside className="content-boundary"><div><span>这里展示</span><strong>博客标题、日期与摘要</strong></div><i/><div><span>不会放在这里</span><strong>论文、技术报告与研究发表</strong></div></aside>
-    <section className="blog-feed"><header><span>最近更新</span><h2>从独立博客带来的文章。</h2><p>点击任意条目后，将前往 bianchengafeng.xyz 阅读全文。</p></header><div className="blog-article-grid">{posts.map((post, index) => <a className={index === 0 ? "featured-blog-post" : ""} key={`${post.link}-${index}`} href={post.link} target="_blank" rel="noreferrer"><div className="blog-post-meta"><span>0{index + 1}</span><time>{post.date}</time></div><div className="blog-post-glyph" aria-hidden="true"><Icon name="article"/></div>{index === 0 && <div className="featured-blog-context"><span>LATEST FROM THE BLOG</span><strong>最新文章</strong><i/></div>}<h3>{post.title}</h3><p>{post.text}</p>{index === 0 && <dl className="featured-blog-facts"><div><dt>来源</dt><dd>bianchengafeng.xyz</dd></div><div><dt>内容</dt><dd>标题 · 摘要 · 外部全文</dd></div></dl>}<small>前往独立博客阅读 <Icon name="external"/></small></a>)}</div></section>
+    <section className="blog-feed"><header><span>最近更新</span><h2>从独立博客带来的文章。</h2><p>点击任意条目后，将前往 bianchengafeng.xyz 阅读全文。</p></header>{feedState.status === "loading" ? <div className="blog-feed-state" role="status"><Icon name="article"/><strong>正在读取独立博客</strong><p>文章列表会直接以 RSS 的当前内容为准。</p></div> : feedState.status === "error" ? <div className="blog-feed-state blog-feed-error" role="status"><Icon name="article"/><strong>暂时无法读取文章</strong><p>没有使用本地旧文章代替。你仍可以直接前往独立博客查看当前内容。</p></div> : posts.length === 0 ? <div className="blog-feed-state"><Icon name="article"/><strong>目前暂无公开文章</strong><p>RSS 当前没有文章；以后发布新内容后，这里会自动出现。</p></div> : <div className="blog-article-grid">{posts.map((post, index) => <a className={index === 0 ? "featured-blog-post" : ""} key={`${post.link}-${index}`} href={post.link} target="_blank" rel="noreferrer"><div className="blog-post-meta"><span>0{index + 1}</span><time>{post.date}</time></div><div className="blog-post-glyph" aria-hidden="true"><Icon name="article"/></div>{index === 0 && <div className="featured-blog-context"><span>LATEST FROM THE BLOG</span><strong>最新文章</strong><i/></div>}<h3>{post.title}</h3><p>{post.text}</p>{index === 0 && <dl className="featured-blog-facts"><div><dt>来源</dt><dd>bianchengafeng.xyz</dd></div><div><dt>内容</dt><dd>标题 · 摘要 · 外部全文</dd></div></dl>}<small>前往独立博客阅读 <Icon name="external"/></small></a>)}</div>}</section>
     <a className="blog-portal" href={identity.blogUrl} target="_blank" rel="noreferrer"><span><small>完整归档、标签与系列</small>打开「{identity.blogName}」</span><Icon name="arrow"/></a>
   </main>;
 }

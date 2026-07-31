@@ -54,7 +54,7 @@ npm run preview
 
 ## 内容配置
 
-网站的公开身份、链接、首页近况、About、Projects、Writing 兜底文章与 SEO 文案集中维护在 [`src/content/site.js`](src/content/site.js)。页面组件只负责渲染；没有真实内容的数组保持为空时，页面会显示正式空状态，不需要添加测试条目。
+网站的公开身份、链接、首页近况、About、Projects、Writing RSS 地址与 SEO 文案集中维护在 [`src/content/site.js`](src/content/site.js)。页面组件只负责渲染；没有真实内容的数组保持为空时，页面会显示正式空状态，不需要添加测试条目。
 
 常用修改位置：
 
@@ -63,7 +63,7 @@ npm run preview
 - `home`：此刻状态、近期痕迹、当前观点和最近输入
 - `about`：个人坐标、做事方式与生活兴趣集合
 - `projects.categories[*].items`：按类别增删真实项目，分页自动计算
-- `writing`：RSS 地址和 RSS 不可用时的真实文章兜底数据
+- `writing`：独立博客 RSS 地址；文章以实时 RSS 为唯一来源，空内容和读取失败会显示不同状态
 
 ## License
 
