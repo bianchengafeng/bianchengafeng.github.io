@@ -35,6 +35,11 @@ const lensFiltersSvg = [
   '<feBlend in="GC" in2="BC" mode="screen" result="GB"/>',
   '<feBlend in="RC" in2="GB" mode="screen"/>',
   "</filter>",
+  // 整条导航本体的轻折射：很小的位移，让 bar 也有"活玻璃"感但不夸张
+  '<filter id="bar-lens" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">',
+  '<feImage class="lens-map" x="0" y="0" width="100%" height="100%" result="MAP" preserveAspectRatio="none"/>',
+  '<feDisplacementMap in="SourceGraphic" in2="MAP" scale="18" xChannelSelector="R" yChannelSelector="B"/>',
+  "</filter>",
   "</defs></svg>"
 ].join("\n");
 // 判定逻辑必须与 src/components/useTheme.js 的初始值保持一致。

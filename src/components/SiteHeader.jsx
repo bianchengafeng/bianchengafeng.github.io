@@ -1,37 +1,19 @@
-import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { identity, navPages, site } from "../content/site.js";
 import { Icon } from "./Icon.jsx";
 import { generateLensMap } from "../lens-map.js";
 
-// 折射效果是装饰层，不该挡住首屏。单独成块后台加载，
-// 到达前先用 CSS 玻璃质感占位，两者尺寸与圆角一致，不会跳版。
-const LiquidGlass = lazy(() => import("liquid-glass-react"));
-
-const GLASS_PROPS = {
-  className: "liquid-site-nav",
-  displacementScale: 60,
-  blurAmount: 0.04,
-  saturation: 140,
-  aberrationIntensity: 1.55,
-  elasticity: 0.12,
-  cornerRadius: 30,
-  padding: "0",
-  mode: "shader",
-  overLight: false,
-  style: { position: "absolute", top: "50%", left: "50%", width: "100%", height: "100%" }
-};
-
 /**
- * 激活态液态玻璃药丸 —— v2 招牌版的核心。
- * 在导航链接背后放一枚带着弹簧过渡的磨砂玻璃透镜，
- * 通过三通道 SVG 滤镜产生边缘色散（chromatic aberration），
- * 落位时有一道斜向高光扫过。
+ * 激活态液态玻璃药丸 —— v2 招牌版。
+ * 完全照 design-prototypes/v2-signature.html 的实现：
+ * - 定位用 offsetLeft / offsetWidth（相对 position: relative 的 nav）
+ * - 三层结构：外层（定位+弹簧过渡）→ pill-warp（SVG 三通道色散滤镜）→ pill-shine（高光+斜向扫光）
+ * - hover 标签时药丸滑过去预览，离开弹回当前激活标签
  */
 function NavGlassPill({ active }) {
-  const navRef = useRef(null);
   const activeRef = useRef(null);
   const pillRef = useRef(null);
-  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, ready: false });
+  const [pill, setPill] = useState({ left: 0, width: 0, ready: false });
   const sheenTimer = useRef(0);
   const prevActive = useRef(active);
 
@@ -43,64 +25,42 @@ function NavGlassPill({ active }) {
     });
   }, []);
 
-  const measure = useCallback((tab) => {
-    const nav = navRef.current;
-    if (!nav || !tab) return;
-    const nr = nav.getBoundingClientRect();
-    const tr = tab.getBoundingClientRect();
-    return { left: tr.left - nr.left, width: tr.width };
+  const place = useCallback((tab, withSheen = false) => {
+    if (!tab) return;
+    setPill({ left: tab.offsetLeft, width: tab.offsetWidth, ready: true });
+    if (withSheen) {
+      const el = pillRef.current;
+      if (!el) return;
+      clearTimeout(sheenTimer.current);
+      el.classList.remove("sheen");
+      void el.offsetWidth;
+      el.classList.add("sheen");
+      sheenTimer.current = setTimeout(() => el.classList.remove("sheen"), 1000);
+    }
   }, []);
 
-  // active 变化时，测量新标签位置并触发扫光。
+  // active 变化时定位；只在真正切换时触发扫光。
   useEffect(() => {
-    const pos = measure(activeRef.current);
-    if (!pos) return;
-    setPillStyle({ ...pos, ready: true });
-    if (prevActive.current !== active) {
-      prevActive.current = active;
-      // 扫光：移除 sheen → 强制重排 → 加回 sheen
-      const pill = pillRef.current;
-      if (!pill) return;
-      clearTimeout(sheenTimer.current);
-      pill.classList.remove("sheen");
-      void pill.offsetWidth;
-      pill.classList.add("sheen");
-      sheenTimer.current = setTimeout(() => pill.classList.remove("sheen"), 1000);
-    }
-  }, [active, measure]);
+    place(activeRef.current, prevActive.current !== active);
+    prevActive.current = active;
+  }, [active, place]);
 
-  // resize 时重新测量。
+  // resize 时重新定位。
   useEffect(() => {
-    const onResize = () => {
-      const pos = measure(activeRef.current);
-      if (pos) setPillStyle((prev) => ({ ...prev, ...pos }));
-    };
+    const onResize = () => place(activeRef.current);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [active, measure]);
-
-  // hover 时药丸跟随指针下的标签（预览），离开后弹回当前激活标签。
-  const handleTabEnter = useCallback(
-    (event) => {
-      const pos = measure(event.currentTarget);
-      if (pos) setPillStyle((prev) => ({ ...prev, ...pos }));
-    },
-    [measure]
-  );
-  const handleNavLeave = useCallback(() => {
-    const pos = measure(activeRef.current);
-    if (pos) setPillStyle((prev) => ({ ...prev, ...pos }));
-  }, [measure]);
+  }, [place]);
 
   return (
-    <nav ref={navRef} aria-label="主导航" onMouseLeave={handleNavLeave}>
+    <nav aria-label="主导航" onMouseLeave={() => place(activeRef.current)}>
       <span
         ref={pillRef}
         className="nav-glass-pill"
         style={{
-          width: pillStyle.width,
-          transform: `translateX(${pillStyle.left}px)`,
-          opacity: pillStyle.ready ? 1 : 0
+          width: pill.width,
+          transform: `translateX(${pill.left}px)`,
+          opacity: pill.ready ? 1 : 0
         }}
         aria-hidden="true"
       >
@@ -114,7 +74,7 @@ function NavGlassPill({ active }) {
           className={active === page.key ? "active" : ""}
           href={page.path}
           aria-current={active === page.key ? "page" : undefined}
-          onMouseEnter={handleTabEnter}
+          onMouseEnter={(event) => place(event.currentTarget, true)}
         >
           {page.navLabel}
         </a>
@@ -159,7 +119,6 @@ export function SiteHeader({ active, theme, onToggleTheme }) {
     event.currentTarget.style.removeProperty("--glass-x");
     event.currentTarget.style.removeProperty("--glass-y");
   };
-  const inner = <HeaderInner active={active} theme={theme} onToggleTheme={onToggleTheme} />;
 
   return (
     <header
@@ -167,9 +126,9 @@ export function SiteHeader({ active, theme, onToggleTheme }) {
       onPointerMove={trackGlassPointer}
       onPointerLeave={resetGlassPointer}
     >
-      <Suspense fallback={<div className="liquid-site-nav liquid-site-nav-plain">{inner}</div>}>
-        <LiquidGlass {...GLASS_PROPS}>{inner}</LiquidGlass>
-      </Suspense>
+      {/* v2 原型的整条玻璃：纯 CSS backdrop-filter + bar-lens 轻折射，通透不灰 */}
+      <span className="bar-warp" aria-hidden="true" />
+      <HeaderInner active={active} theme={theme} onToggleTheme={onToggleTheme} />
     </header>
   );
 }
