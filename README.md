@@ -9,7 +9,7 @@
 - **React 19** + **Vite 6** 多页面静态构建
 - **liquid-glass-react** 驱动导航栏的实时折射与边缘色散
 - 自动浅色 / 深色双主题，手动切换后写入 localStorage
-- 不蒜子 3.6.9 站点访问统计
+- 原版不蒜子 2.3 站点访问统计（异常时自动降级）
 - GitHub Pages 部署，GitHub Actions 自动构建
 
 ## 页面结构

@@ -229,7 +229,7 @@ function Footer() {
   const localPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname) || window.location.hostname.endsWith(".local");
 
   useEffect(() => {
-    const statIds = ["busuanzi_site_uv", "busuanzi_site_pv"];
+    const statIds = ["busuanzi_value_site_uv", "busuanzi_value_site_pv"];
     const setStatText = (text) => statIds.forEach((id) => {
       const node = document.getElementById(id);
       if (node) node.textContent = text;
@@ -254,7 +254,7 @@ function Footer() {
     if (!script) {
       script = document.createElement("script");
       script.id = "busuanzi-counter";
-      script.src = "https://cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js";
+      script.src = "https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js";
       script.defer = true;
       script.onerror = () => statNodes.forEach(showUnavailable);
       document.body.appendChild(script);
@@ -273,8 +273,8 @@ function Footer() {
       <div className="footer-identity"><span>{identity.siteLabel}</span><strong>感谢到访。</strong><p>这是{identity.name}的个人网站。近况、项目与入口会随真实内容更新。</p></div>
       <div className="footer-utility">
         <div className="footer-stats" aria-label="网站访问统计">
-          <div className="footer-stat"><small>VISITORS</small><span><strong id="busuanzi_site_uv">读取中</strong> 位访客</span></div>
-          <div className="footer-stat"><small>PAGE VIEWS</small><span><strong id="busuanzi_site_pv">读取中</strong> 次访问</span></div>
+          <div className="footer-stat"><small>VISITORS</small><span><strong id="busuanzi_value_site_uv">读取中</strong> 位访客</span></div>
+          <div className="footer-stat"><small>PAGE VIEWS</small><span><strong id="busuanzi_value_site_pv">读取中</strong> 次访问</span></div>
         </div>
         <nav className="footer-links" aria-label="页脚链接">
           <a href={`mailto:${identity.email}`}>Email <Icon name="arrow"/></a>
