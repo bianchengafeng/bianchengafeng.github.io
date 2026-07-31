@@ -52,9 +52,17 @@ npm run preview
 
 首次使用需在仓库 Settings > Pages 中将 Source 切换为 **GitHub Actions**。
 
-## 内容说明
+## 内容配置
 
-原型阶段的未知兴趣、观点、收藏和项目测试案例均明确标注「测试内容 · 非真实成果」。随着真实内容积累，这些占位将逐步替换。
+网站的公开身份、链接、首页近况、About、Projects、Writing 兜底文章与 SEO 文案集中维护在 [`src/content/site.js`](src/content/site.js)。页面组件只负责渲染；没有真实内容的数组保持为空时，页面会显示正式空状态，不需要添加测试条目。
+
+常用修改位置：
+
+- `identity`：名字、邮箱、GitHub、独立博客与版权年份
+- `home`：此刻状态、近期痕迹、当前观点和最近输入
+- `about`：个人坐标、做事方式与生活兴趣集合
+- `projects.categories[*].items`：按类别增删真实项目，分页自动计算
+- `writing`：RSS 地址和 RSS 不可用时的真实文章兜底数据
 
 ## License
 

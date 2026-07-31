@@ -366,8 +366,12 @@ h1, h2, h3 { margin: 0; line-height: 1.08; letter-spacing: -.045em; }
 .life-collection-items strong { display: block; margin-top: 10px; font-size: 22px; }
 .life-collection-items p { color: var(--muted); font-size: 12px; }
 .life-collection-items svg { width: 24px; color: var(--accent); }
-.life-collection-panel > footer { display: flex; gap: 18px; padding: 14px 24px; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--warning-surface) 58%, var(--surface)); color: var(--muted); font-size: 11px; }
-.life-collection-panel > footer strong { color: var(--warning-ink); }
+.life-collection-empty { display: grid; flex: 1; min-height: 300px; padding: 34px; place-content: center; justify-items: center; text-align: center; }
+.life-collection-empty svg { width: 34px; margin-bottom: 18px; color: var(--accent); }
+.life-collection-empty strong { font-size: 24px; }
+.life-collection-empty p { max-width: 38ch; margin: 10px 0 0; color: var(--muted); }
+.life-collection-panel > footer { display: flex; gap: 18px; padding: 14px 24px; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--accent-soft) 32%, var(--surface)); color: var(--muted); font-size: 11px; }
+.life-collection-panel > footer strong { color: var(--accent-strong); }
 
 .projects-visual-hero { background: linear-gradient(135deg, color-mix(in srgb, var(--accent-soft) 78%, var(--surface)), var(--surface)); }
 .project-hero-visual { position: relative; min-height: 340px; }
