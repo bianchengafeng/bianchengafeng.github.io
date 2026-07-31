@@ -439,7 +439,7 @@ h1, h2, h3 { margin: 0; line-height: 1.08; letter-spacing: -.045em; }
 .project-browser-toolbar button { display: grid; width: 34px; height: 30px; padding: 0; place-items: center; border: 1px solid var(--line); border-radius: 9px; background: transparent; color: var(--muted); cursor: pointer; transition: border-color .2s, background .2s, color .2s; }
 .project-browser-toolbar button:hover { border-color: var(--accent); color: var(--ink); }
 .project-browser-toolbar button.active { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
-.project-entry-list { display: grid; min-height: 720px; align-content: start; }
+.project-entry-list { display: grid; align-content: start; }
 .project-entry { display: grid; grid-template-columns: 72px minmax(260px, 1.2fr) minmax(240px, .78fr) minmax(150px, .45fr); gap: 28px; align-items: center; min-height: 240px; padding: 32px 34px; border-bottom: 1px solid var(--line); }
 .project-browser-nav { border-top: 0; border-bottom: 0; }
 .project-browser-nav button { min-width: 82px; min-height: 36px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); color: var(--ink); cursor: pointer; transition: border-color .2s, background .2s; }

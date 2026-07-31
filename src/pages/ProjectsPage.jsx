@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { siteContent } from "../content/site.js";
+import { getProjectPagination } from "../project-pagination.js";
 
 const { projects } = siteContent;
 
@@ -31,8 +32,18 @@ export function ProjectsPage({ Icon }) {
   const categories = projects.categories;
   const codeCategory = categories[0];
   const [projectPage, setProjectPage] = useState(0);
-  const pageCount = Math.max(1, Math.ceil(codeCategory.items.length / projects.pageSize));
-  const visibleProjects = codeCategory.items.slice(projectPage * projects.pageSize, (projectPage + 1) * projects.pageSize);
+  const {
+    page,
+    pageCount,
+    hasMultiplePages,
+    visibleProjects
+  } = getProjectPagination(codeCategory.items, projects.pageSize, projectPage);
+
+  useEffect(() => {
+    if (projectPage !== page) {
+      setProjectPage(page);
+    }
+  }, [page, projectPage]);
 
   return (
     <main className="inner-page projects-page">
@@ -61,16 +72,20 @@ export function ProjectsPage({ Icon }) {
           <div className="project-collection-intro"><div><small>项目浏览器</small><h2>只展示真实项目和可核实证据。</h2></div><p>以后只需要在内容配置中增删项目条目，分页会自动变化。</p></div>
           {codeCategory.items.length ? (
             <div className="project-browser" aria-live="polite">
-              <div className="project-browser-toolbar">
-                <span>PAGE {String(projectPage + 1).padStart(2, "0")} / {String(pageCount).padStart(2, "0")}</span>
-                <div>{Array.from({ length: pageCount }, (_, index) => <button type="button" className={projectPage === index ? "active" : ""} onClick={() => setProjectPage(index)} aria-label={`查看第 ${index + 1} 页项目`} aria-pressed={projectPage === index} key={index}>{String(index + 1).padStart(2, "0")}</button>)}</div>
-              </div>
-              <div className="project-entry-list">{visibleProjects.map((project, index) => <ProjectEntry project={project} index={projectPage * projects.pageSize + index} icon={codeCategory.icon} Icon={Icon} key={project.title} />)}</div>
-              <div className="project-browser-nav">
-                <button type="button" onClick={() => setProjectPage((page) => Math.max(0, page - 1))} disabled={projectPage === 0}>上一页</button>
-                <span>本页 {visibleProjects.length} 项 · 共 {codeCategory.items.length} 项</span>
-                <button type="button" onClick={() => setProjectPage((page) => Math.min(pageCount - 1, page + 1))} disabled={projectPage === pageCount - 1}>下一页</button>
-              </div>
+              {hasMultiplePages && (
+                <div className="project-browser-toolbar">
+                  <span>PAGE {String(page + 1).padStart(2, "0")} / {String(pageCount).padStart(2, "0")}</span>
+                  <div>{Array.from({ length: pageCount }, (_, index) => <button type="button" className={page === index ? "active" : ""} onClick={() => setProjectPage(index)} aria-label={`查看第 ${index + 1} 页项目`} aria-pressed={page === index} key={index}>{String(index + 1).padStart(2, "0")}</button>)}</div>
+                </div>
+              )}
+              <div className="project-entry-list">{visibleProjects.map((project, index) => <ProjectEntry project={project} index={page * projects.pageSize + index} icon={codeCategory.icon} Icon={Icon} key={project.title} />)}</div>
+              {hasMultiplePages && (
+                <div className="project-browser-nav">
+                  <button type="button" onClick={() => setProjectPage((currentPage) => Math.max(0, currentPage - 1))} disabled={page === 0}>上一页</button>
+                  <span>本页 {visibleProjects.length} 项 · 共 {codeCategory.items.length} 项</span>
+                  <button type="button" onClick={() => setProjectPage((currentPage) => Math.min(pageCount - 1, currentPage + 1))} disabled={page === pageCount - 1}>下一页</button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="project-detail-empty"><Icon name={codeCategory.icon}/><h3>{codeCategory.emptyTitle}</h3><p>{codeCategory.emptyText}</p></div>
