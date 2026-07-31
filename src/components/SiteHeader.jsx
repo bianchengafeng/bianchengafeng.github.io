@@ -90,7 +90,6 @@ function NavGlassPill({ active }) {
   const handleNavLeave = useCallback(() => {
     const pos = measure(activeRef.current);
     if (pos) setPillStyle((prev) => ({ ...prev, ...pos }));
-     
   }, [measure]);
 
   return (
