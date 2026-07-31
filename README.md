@@ -9,7 +9,7 @@
 - **React 19** + **Vite 6** 多页面静态构建
 - **liquid-glass-react** 驱动导航栏的实时折射与边缘色散
 - 自动浅色 / 深色双主题，手动切换后写入 localStorage
-- 原版不蒜子 2.3 访客近似统计 + 20 分钟无活动访问会话（异常时使用最近缓存或降级）
+- 原版不蒜子 2.3 新访客增量 + 20 分钟无活动访问会话；两项按各自启用时点展示（异常时使用最近缓存或降级）
 - GitHub Pages 部署，GitHub Actions 自动构建
 
 ## 页面结构
@@ -59,7 +59,8 @@ npm run preview
 常用修改位置：
 
 - `identity`：名字、邮箱、GitHub、独立博客与版权年份
-- `statistics`：公开访问统计的起始日期、20 分钟会话窗口、专用计数路径和历史基线
+- `statistics.newVisitors`：新访客增量的起始日期与旧站历史基线
+- `statistics.sessions`：20 分钟会话窗口、功能启用说明、专用计数路径和会话基线
 - `home`：此刻状态、近期痕迹、当前观点和最近输入
 - `about`：个人坐标、做事方式与生活兴趣集合
 - `projects.categories[*].items`：按类别增删真实项目，分页自动计算

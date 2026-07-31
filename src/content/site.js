@@ -12,12 +12,15 @@ export const siteContent = {
   },
 
   statistics: {
-    since: "2026.07.31",
-    sessionMinutes: 20,
-    counterPath: "/visit-counter/",
-    baseline: {
-      visitors: 1843,
-      sessions: 0
+    newVisitors: {
+      since: "2026.07.31",
+      baseline: 1843
+    },
+    sessions: {
+      sinceLabel: "功能启用后",
+      inactivityMinutes: 20,
+      counterPath: "/visit-counter/",
+      baseline: 0
     }
   },
 

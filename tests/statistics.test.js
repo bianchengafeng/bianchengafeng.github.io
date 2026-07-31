@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  calculateDisplayedStatistics,
   isNewVisitSession,
   parseStatisticsCache,
   selectUsableStorage,
@@ -9,6 +10,24 @@ import {
 
 const MINUTE = 60 * 1000;
 const WINDOW = 20 * MINUTE;
+const STATISTICS_CONFIG = {
+  newVisitors: { baseline: 1843 },
+  sessions: { baseline: 0 }
+};
+
+test("新访客和会话分别按各自基线计算，不强行比较大小", () => {
+  assert.deepEqual(
+    calculateDisplayedStatistics({ visitors: 1848, sessions: 1 }, STATISTICS_CONFIG, 10),
+    { visitors: 5, sessions: 1, updatedAt: 10 }
+  );
+});
+
+test("原始计数低于基线时展示值不会变成负数", () => {
+  assert.deepEqual(
+    calculateDisplayedStatistics({ visitors: 1842, sessions: -1 }, STATISTICS_CONFIG, 10),
+    { visitors: 0, sessions: 0, updatedAt: 10 }
+  );
+});
 
 test("首次访问开启新会话", () => {
   assert.equal(isNewVisitSession(Number.NaN, 1000, WINDOW), true);

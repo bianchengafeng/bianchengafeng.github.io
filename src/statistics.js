@@ -77,6 +77,14 @@ export function updateVisitSession(previous, now, inactivityMs, random = Math.ra
   };
 }
 
+export function calculateDisplayedStatistics(raw, config, updatedAt = Date.now()) {
+  return {
+    visitors: Math.max(0, raw.visitors - config.newVisitors.baseline),
+    sessions: Math.max(0, raw.sessions - config.sessions.baseline),
+    updatedAt
+  };
+}
+
 export function parseStatisticsCache(value) {
   if (!value || !Number.isFinite(value.visitors) || !Number.isFinite(value.sessions)) return null;
   return {

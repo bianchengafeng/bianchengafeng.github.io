@@ -6,6 +6,7 @@ import { siteContent } from "./content/site.js";
 import { ProjectsPage } from "./pages/ProjectsPage.jsx";
 import { loadWritingFeed } from "./writing-feed.js";
 import {
+  calculateDisplayedStatistics,
   readStatisticsCache,
   recordVisitActivity,
   requestVisitStatistics,
@@ -253,13 +254,9 @@ function Footer() {
 
     let cancelled = false;
     let lastRecordedAt = 0;
-    const inactivityMs = statistics.sessionMinutes * 60 * 1000;
+    const inactivityMs = statistics.sessions.inactivityMinutes * 60 * 1000;
     const showStatistics = (raw) => {
-      const next = {
-        visitors: Math.max(0, raw.visitors - statistics.baseline.visitors),
-        sessions: Math.max(0, raw.sessions - statistics.baseline.sessions),
-        updatedAt: Date.now()
-      };
+      const next = calculateDisplayedStatistics(raw, statistics);
       writeStatisticsCache(next);
       if (!cancelled) {
         setVisitStats(next);
@@ -276,7 +273,7 @@ function Footer() {
             if (!readStatisticsCache() && !cancelled) setStatsUnavailable(true);
             return undefined;
           }
-          return requestVisitStatistics(statistics.counterPath).then(showStatistics);
+          return requestVisitStatistics(statistics.sessions.counterPath).then(showStatistics);
         })
         .catch(() => {
           if (!cancelled && !readStatisticsCache()) setStatsUnavailable(true);
@@ -327,17 +324,17 @@ function Footer() {
       <div className="footer-identity"><span>{identity.siteLabel}</span><strong>感谢到访。</strong><p>这是{identity.name}的个人网站。近况、项目与入口会随真实内容更新。</p></div>
       <div className="footer-utility">
         <div className="footer-statistics">
-          <div className="footer-stats" aria-label={`自 ${statistics.since} 起的网站访问统计`} aria-live="polite">
-            <div className="footer-stat"><small>VISITORS · SINCE {statistics.since}</small><span><strong>{visitorsText}</strong>{!localPreview && visitStats && " 位访客"}</span></div>
-            <div className="footer-stat"><small>SESSIONS · SINCE {statistics.since}</small><span><strong>{sessionsText}</strong>{!localPreview && visitStats && " 次会话"}</span></div>
+          <div className="footer-stats" aria-label="网站访问趋势；新访客与20分钟会话的口径和启用时点不同" aria-live="polite">
+            <div className="footer-stat"><small>NEW VISITORS · SINCE {statistics.newVisitors.since}</small><span><strong>{visitorsText}</strong>{!localPreview && visitStats && " 位新访客"}</span></div>
+            <div className="footer-stat"><small>{statistics.sessions.inactivityMinutes}-MIN SESSIONS · {statistics.sessions.sinceLabel}</small><span><strong>{sessionsText}</strong>{!localPreview && visitStats && " 次会话"}</span></div>
           </div>
           <button className="stats-explain-toggle" type="button" aria-expanded={statsExplained} aria-controls="stats-explanation" onClick={() => setStatsExplained((visible) => !visible)}>
             <span aria-hidden="true">i</span>{statsExplained ? "收起说明" : "统计说明"}
           </button>
           <div className="stats-explanation" id="stats-explanation" hidden={!statsExplained}>
-            <p><strong>访客</strong>由第三方服务近似识别。同一设备和网络环境下重复刷新通常仍算一位；更换设备、浏览器、无痕窗口或网络后，可能被识别为新访客。</p>
-            <p><strong>访问会话</strong>以连续 <strong>{statistics.sessionMinutes} 分钟无活动</strong>为分界。在当前会话中切换页面、刷新或继续操作，只会延长最后活动时间，不会重复增加；满 {statistics.sessionMinutes} 分钟后再次进入，才记为新会话。</p>
-            <p>这里展示自 <strong>{statistics.since}</strong> 起的新增量。访客使用旧站历史基线校准；会话从新的专用计数入口开始累计。数字可能受到浏览器存储、爬虫、拦截器和网络环境影响，仅用于观察大致趋势，不是审计级数据。</p>
+            <p><strong>新访客</strong>是第三方累计访客数减去旧站基线后的增量。同一身份只会在首次被识别时增加；旧访客再次回来不会重复增加，更换设备、浏览器、无痕窗口或网络后则可能被识别为另一位。</p>
+            <p><strong>{statistics.sessions.inactivityMinutes} 分钟会话</strong>从会话功能启用后开始累计，以连续 <strong>{statistics.sessions.inactivityMinutes} 分钟无活动</strong>为分界。切页、刷新和继续操作只会延长当前会话；满 {statistics.sessions.inactivityMinutes} 分钟后再次进入，才增加一次。</p>
+            <p>两项数据的<strong>统计对象和启用时点不同，不能直接比较大小</strong>；例如基线后已有 5 位新访客，但会话功能启用后暂时只有 1 次会话。它们只用于观察大致趋势，不是审计级数据。</p>
           </div>
         </div>
         <nav className="footer-links" aria-label="页脚链接">
