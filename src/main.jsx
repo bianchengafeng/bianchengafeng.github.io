@@ -4,6 +4,13 @@ import LiquidGlass from "liquid-glass-react";
 import avatarUrl from "../assets/avatar.png";
 import { siteContent } from "./content/site.js";
 import { ProjectsPage } from "./pages/ProjectsPage.jsx";
+import {
+  readStatisticsCache,
+  recordVisitActivity,
+  requestVisitStatistics,
+  STATS_CACHE_EVENT,
+  writeStatisticsCache
+} from "./statistics.js";
 import "./site.css";
 
 const base = "/";
@@ -227,77 +234,100 @@ function NotFoundPage() {
 
 function Footer() {
   const [statsExplained, setStatsExplained] = useState(false);
+  const [visitStats, setVisitStats] = useState(() => readStatisticsCache());
+  const [statsUnavailable, setStatsUnavailable] = useState(false);
   const localPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname) || window.location.hostname.endsWith(".local");
 
   useEffect(() => {
-    const statBaselines = {
-      busuanzi_value_site_uv: statistics.baseline.visitors,
-      busuanzi_value_site_pv: statistics.baseline.pageViews
-    };
-    const statIds = Object.keys(statBaselines);
-    const setStatText = (text) => statIds.forEach((id) => {
-      const node = document.getElementById(id);
-      if (node) node.textContent = text;
-    });
-    if (localPreview) {
-      setStatText("正式上线后统计");
-      return undefined;
-    }
-    const showUnavailable = (node) => {
-      const stat = node?.closest(".footer-stat");
-      if (stat) stat.innerHTML = "<small>STATISTICS</small><span>统计暂不可用</span>";
-    };
-    const validateStat = (node) => {
-      const value = (node?.textContent || "").trim();
-      if (value === node?.dataset.counterDisplay || /读取中|加载中/.test(value)) return;
-      if (!/^\d+$/.test(value)) {
-        showUnavailable(node);
-        return;
+    if (localPreview) return undefined;
+
+    let cancelled = false;
+    let lastRecordedAt = 0;
+    const inactivityMs = statistics.sessionMinutes * 60 * 1000;
+    const showStatistics = (raw) => {
+      const next = {
+        visitors: Math.max(0, raw.visitors - statistics.baseline.visitors),
+        sessions: Math.max(0, raw.sessions - statistics.baseline.sessions),
+        updatedAt: Date.now()
+      };
+      writeStatisticsCache(next);
+      if (!cancelled) {
+        setVisitStats(next);
+        setStatsUnavailable(false);
       }
-      const current = Number.parseInt(value, 10);
-      const baseline = statBaselines[node.id];
-      const display = Math.max(0, current - baseline).toLocaleString("zh-CN");
-      node.dataset.counterDisplay = display;
-      node.textContent = display;
     };
-    const statNodes = statIds.map((id) => document.getElementById(id)).filter(Boolean);
-    const observer = new MutationObserver(() => statNodes.forEach(validateStat));
-    statNodes.forEach((node) => observer.observe(node, { childList: true, characterData: true, subtree: true }));
-    let script = document.getElementById("busuanzi-counter");
-    if (!script) {
-      script = document.createElement("script");
-      script.id = "busuanzi-counter";
-      script.src = "https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js";
-      script.defer = true;
-      script.onerror = () => statNodes.forEach(showUnavailable);
-      document.body.appendChild(script);
-    }
-    const timeout = window.setTimeout(() => statNodes.forEach((node) => {
-      const value = (node.textContent || "").trim();
-      if (value !== node.dataset.counterDisplay && !/^\d+$/.test(value)) showUnavailable(node);
-    }), 8000);
+    const recordActivity = () => {
+      const now = Date.now();
+      if (now - lastRecordedAt < 30_000) return;
+      lastRecordedAt = now;
+      recordVisitActivity(inactivityMs, now)
+        .then(({ newSession, storagePersistent }) => {
+          if (!newSession || !storagePersistent) {
+            if (!readStatisticsCache() && !cancelled) setStatsUnavailable(true);
+            return undefined;
+          }
+          return requestVisitStatistics(statistics.counterPath).then(showStatistics);
+        })
+        .catch(() => {
+          if (!cancelled && !readStatisticsCache()) setStatsUnavailable(true);
+        });
+    };
+    const recordVisibleActivity = () => {
+      if (document.visibilityState === "visible") recordActivity();
+    };
+    const syncCachedStatistics = () => {
+      const cached = readStatisticsCache();
+      if (cached && !cancelled) setVisitStats(cached);
+    };
+
+    recordActivity();
+    window.addEventListener("pointerdown", recordActivity, { passive: true });
+    window.addEventListener("keydown", recordActivity);
+    window.addEventListener("storage", syncCachedStatistics);
+    window.addEventListener(STATS_CACHE_EVENT, syncCachedStatistics);
+    document.addEventListener("visibilitychange", recordVisibleActivity);
+
     return () => {
-      observer.disconnect();
-      window.clearTimeout(timeout);
+      cancelled = true;
+      window.removeEventListener("pointerdown", recordActivity);
+      window.removeEventListener("keydown", recordActivity);
+      window.removeEventListener("storage", syncCachedStatistics);
+      window.removeEventListener(STATS_CACHE_EVENT, syncCachedStatistics);
+      document.removeEventListener("visibilitychange", recordVisibleActivity);
     };
   }, [localPreview]);
+
+  const visitorsText = localPreview
+    ? "正式上线后统计"
+    : visitStats
+      ? visitStats.visitors.toLocaleString("zh-CN")
+      : statsUnavailable
+        ? "统计暂不可用"
+        : "读取中";
+  const sessionsText = localPreview
+    ? "正式上线后统计"
+    : visitStats
+      ? visitStats.sessions.toLocaleString("zh-CN")
+      : statsUnavailable
+        ? "统计暂不可用"
+        : "读取中";
 
   return <footer className="site-footer">
     <div className="footer-main">
       <div className="footer-identity"><span>{identity.siteLabel}</span><strong>感谢到访。</strong><p>这是{identity.name}的个人网站。近况、项目与入口会随真实内容更新。</p></div>
       <div className="footer-utility">
         <div className="footer-statistics">
-          <div className="footer-stats" aria-label={`自 ${statistics.since} 起的网站访问统计`}>
-            <div className="footer-stat"><small>VISITORS · SINCE {statistics.since}</small><span><strong id="busuanzi_value_site_uv">读取中</strong> 位访客</span></div>
-            <div className="footer-stat"><small>PAGE VIEWS · SINCE {statistics.since}</small><span><strong id="busuanzi_value_site_pv">读取中</strong> 次访问</span></div>
+          <div className="footer-stats" aria-label={`自 ${statistics.since} 起的网站访问统计`} aria-live="polite">
+            <div className="footer-stat"><small>VISITORS · SINCE {statistics.since}</small><span><strong>{visitorsText}</strong>{!localPreview && visitStats && " 位访客"}</span></div>
+            <div className="footer-stat"><small>SESSIONS · SINCE {statistics.since}</small><span><strong>{sessionsText}</strong>{!localPreview && visitStats && " 次会话"}</span></div>
           </div>
           <button className="stats-explain-toggle" type="button" aria-expanded={statsExplained} aria-controls="stats-explanation" onClick={() => setStatsExplained((visible) => !visible)}>
             <span aria-hidden="true">i</span>{statsExplained ? "收起说明" : "统计说明"}
           </button>
           <div className="stats-explanation" id="stats-explanation" hidden={!statsExplained}>
-            <p><strong>访客</strong>是第三方统计服务识别出的访客数量。同一设备和网络环境下重复刷新，通常仍算同一位；更换设备、浏览器或网络后，可能被识别为新访客。</p>
-            <p><strong>访问</strong>是页面载入次数。打开页面或刷新页面，通常都会增加一次。</p>
-            <p>这里仅展示自 <strong>{statistics.since}</strong> 起的新增量：当前累计值减去旧站历史基线。数字可能受到去重规则、爬虫、拦截器和网络环境影响，只用于了解大致趋势，不代表严格真实人数。</p>
+            <p><strong>访客</strong>由第三方服务近似识别。同一设备和网络环境下重复刷新通常仍算一位；更换设备、浏览器、无痕窗口或网络后，可能被识别为新访客。</p>
+            <p><strong>访问会话</strong>以连续 <strong>{statistics.sessionMinutes} 分钟无活动</strong>为分界。在当前会话中切换页面、刷新或继续操作，只会延长最后活动时间，不会重复增加；满 {statistics.sessionMinutes} 分钟后再次进入，才记为新会话。</p>
+            <p>这里展示自 <strong>{statistics.since}</strong> 起的新增量。访客使用旧站历史基线校准；会话从新的专用计数入口开始累计。数字可能受到浏览器存储、爬虫、拦截器和网络环境影响，仅用于观察大致趋势，不是审计级数据。</p>
           </div>
         </div>
         <nav className="footer-links" aria-label="页脚链接">

@@ -1,0 +1,177 @@
+const SESSION_KEY = "afeng.visit-session.v1";
+const STATS_CACHE_KEY = "afeng.visit-stats.v1";
+const SESSION_LOCK_KEY = "afeng.visit-session-lock.v1";
+const COUNTER_FRAME_ID = "visit-counter-frame";
+const COUNTER_MESSAGE = "afeng:visit-statistics";
+export const STATS_CACHE_EVENT = "afeng:visit-statistics-cache";
+
+const memoryStorage = new Map();
+const memoryStore = {
+  getItem: (key) => memoryStorage.get(key) ?? null,
+  setItem: (key, value) => memoryStorage.set(key, value),
+  removeItem: (key) => memoryStorage.delete(key)
+};
+
+function canUseStorage(storage) {
+  if (!storage) return false;
+  const probe = `${SESSION_KEY}.probe`;
+  try {
+    storage.setItem(probe, "1");
+    storage.removeItem(probe);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function selectUsableStorage(candidates) {
+  return candidates.find(canUseStorage) || memoryStore;
+}
+
+function getStorage() {
+  const candidates = [];
+  try {
+    candidates.push(window.localStorage);
+  } catch {
+    // Access can throw in strict privacy modes.
+  }
+  try {
+    candidates.push(window.sessionStorage);
+  } catch {
+    // Keep the in-memory fallback for the current page.
+  }
+  return selectUsableStorage(candidates);
+}
+
+function readJson(storage, key) {
+  try {
+    const value = storage.getItem(key);
+    return value ? JSON.parse(value) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeJson(storage, key, value) {
+  try {
+    storage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function isNewVisitSession(lastActivityAt, now, inactivityMs) {
+  return !Number.isFinite(lastActivityAt) || now - lastActivityAt >= inactivityMs;
+}
+
+export function updateVisitSession(previous, now, inactivityMs, random = Math.random) {
+  const lastActivityAt = Number(previous?.lastActivityAt);
+  const newSession = isNewVisitSession(lastActivityAt, now, inactivityMs);
+  return {
+    newSession,
+    session: {
+      id: newSession ? `${now}-${random()}` : previous?.id,
+      lastActivityAt: now
+    }
+  };
+}
+
+export function parseStatisticsCache(value) {
+  if (!value || !Number.isFinite(value.visitors) || !Number.isFinite(value.sessions)) return null;
+  return {
+    visitors: Math.max(0, value.visitors),
+    sessions: Math.max(0, value.sessions),
+    updatedAt: Number.isFinite(value.updatedAt) ? value.updatedAt : 0
+  };
+}
+
+export function readStatisticsCache() {
+  return parseStatisticsCache(readJson(getStorage(), STATS_CACHE_KEY));
+}
+
+export function writeStatisticsCache(statistics) {
+  writeJson(getStorage(), STATS_CACHE_KEY, statistics);
+  window.dispatchEvent(new CustomEvent(STATS_CACHE_EVENT, { detail: statistics }));
+}
+
+async function withFallbackLock(storage, task) {
+  const token = `${Date.now()}-${Math.random()}`;
+
+  while (true) {
+    const current = readJson(storage, SESSION_LOCK_KEY);
+    if (!current?.expiresAt || current.expiresAt <= Date.now()) {
+      writeJson(storage, SESSION_LOCK_KEY, { token, expiresAt: Date.now() + 2000 });
+      await new Promise((resolve) => window.setTimeout(resolve, 32));
+      if (readJson(storage, SESSION_LOCK_KEY)?.token === token) break;
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 80));
+  }
+
+  try {
+    return await task();
+  } finally {
+    if (readJson(storage, SESSION_LOCK_KEY)?.token === token) {
+      try {
+        storage.removeItem(SESSION_LOCK_KEY);
+      } catch {
+        // The session decision is already persisted; an expired lease is harmless.
+      }
+    }
+  }
+}
+
+export async function recordVisitActivity(inactivityMs, now = Date.now()) {
+  const storage = getStorage();
+  const decide = () => {
+    const previous = readJson(storage, SESSION_KEY);
+    const result = updateVisitSession(previous, now, inactivityMs);
+    writeJson(storage, SESSION_KEY, result.session);
+    return { newSession: result.newSession, storagePersistent: storage !== memoryStore };
+  };
+
+  if (navigator.locks?.request) {
+    return navigator.locks.request(SESSION_LOCK_KEY, decide);
+  }
+  return withFallbackLock(storage, decide);
+}
+
+let counterRequest;
+
+export function requestVisitStatistics(counterPath, timeoutMs = 10000) {
+  if (counterRequest) return counterRequest;
+
+  counterRequest = new Promise((resolve, reject) => {
+    const frame = document.createElement("iframe");
+    frame.id = COUNTER_FRAME_ID;
+    frame.src = counterPath;
+    frame.hidden = true;
+    frame.tabIndex = -1;
+    frame.setAttribute("aria-hidden", "true");
+
+    const cleanup = () => {
+      window.removeEventListener("message", handleMessage);
+      window.clearTimeout(timeout);
+      frame.remove();
+      counterRequest = undefined;
+    };
+    const handleMessage = (event) => {
+      if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
+      if (event.data?.type !== COUNTER_MESSAGE) return;
+      const visitors = Number(event.data.visitors);
+      const sessions = Number(event.data.sessions);
+      if (!Number.isFinite(visitors) || !Number.isFinite(sessions)) return;
+      cleanup();
+      resolve({ visitors, sessions });
+    };
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("访问统计请求超时"));
+    }, timeoutMs);
+
+    window.addEventListener("message", handleMessage);
+    document.body.appendChild(frame);
+  });
+
+  return counterRequest;
+}

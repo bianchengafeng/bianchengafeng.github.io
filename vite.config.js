@@ -15,6 +15,7 @@ export default defineConfig({
         about: fileURLToPath(new URL("./about/index.html", import.meta.url)),
         projects: fileURLToPath(new URL("./projects/index.html", import.meta.url)),
         writing: fileURLToPath(new URL("./writing/index.html", import.meta.url)),
+        visitCounter: fileURLToPath(new URL("./visit-counter/index.html", import.meta.url)),
         notFound: fileURLToPath(new URL("./404.html", import.meta.url))
       }
     }
