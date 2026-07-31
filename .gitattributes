@@ -1,0 +1,4 @@
+# 统一以 LF 存储并检出，避免 Windows 上的 CRLF 转换让 Prettier 的
+# endOfLine: lf 校验失败。
+* text=auto eol=lf
+*.png binary
