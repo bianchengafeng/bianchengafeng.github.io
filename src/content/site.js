@@ -14,7 +14,7 @@ export const siteContent = {
   statistics: {
     since: "2026.07.31",
     baseline: {
-      visitors: 1844,
+      visitors: 1843,
       pageViews: 2078
     }
   },
