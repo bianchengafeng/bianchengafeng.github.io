@@ -1,15 +1,92 @@
+const currentYear = String(new Date().getFullYear());
+
+// 邮箱拆开存放，避免直接以完整字符串出现在源码和 HTML 里被爬虫正则抓走。
+const emailUser = "3095635643";
+const emailDomain = "qq.com";
+
 export const siteContent = {
+  site: {
+    origin: "https://bianchengafeng.github.io",
+    locale: "zh_CN",
+    // 放在 public/ 下，构建后是稳定地址，可以直接用作 og:image。
+    socialImage: "/avatar.png",
+    themeColor: { light: "#f8fafc", dark: "#0a0e16" }
+  },
+
   identity: {
     name: "阿峰",
     romanizedName: "AFENG",
-    email: "3095635643@qq.com",
+    email: `${emailUser}@${emailDomain}`,
     githubUrl: "https://github.com/bianchengafeng",
     blogUrl: "https://bianchengafeng.xyz",
     blogName: "阿峰的编程笔记",
     siteLabel: "AFENG · PERSONAL SITE",
-    copyrightYear: "2026",
-    lastUpdatedYear: "2026"
+    copyrightYear: currentYear,
+    lastUpdatedYear: currentYear
   },
+
+  // 路由、构建入口、导航和 SEO 的唯一来源。
+  // vite.config.js 从这里生成多页入口、每页 head 标签、sitemap.xml 和 robots.txt。
+  pages: [
+    {
+      key: "home",
+      entry: "index.html",
+      path: "/",
+      navLabel: "首页",
+      title: "阿峰｜个人主页",
+      description: "阿峰的个人网站。关于本人、项目、写作和生活中的兴趣。",
+      changefreq: "weekly",
+      priority: "1.0"
+    },
+    {
+      key: "projects",
+      entry: "projects/index.html",
+      path: "/projects/",
+      navLabel: "项目",
+      title: "项目｜阿峰",
+      description: "阿峰做过和正在做的项目：代码开源、实践协作、学习实验与研究发表。",
+      changefreq: "monthly",
+      priority: "0.8"
+    },
+    {
+      key: "writing",
+      entry: "writing/index.html",
+      path: "/writing/",
+      navLabel: "博客",
+      title: "写作｜阿峰",
+      description: "阿峰的写作精选，完整文章发布于独立博客 bianchengafeng.xyz。",
+      changefreq: "weekly",
+      priority: "0.8"
+    },
+    {
+      key: "about",
+      entry: "about/index.html",
+      path: "/about/",
+      navLabel: "关于",
+      title: "关于｜阿峰",
+      description: "关于阿峰：经历、能力边界、做事方式，以及专业之外的生活与兴趣。",
+      changefreq: "monthly",
+      priority: "0.6"
+    },
+    {
+      key: "notFound",
+      entry: "404.html",
+      path: "/404.html",
+      title: "页面未找到｜阿峰",
+      description: "请求的页面不存在。",
+      indexable: false,
+      inSitemap: false
+    },
+    {
+      // 只承载不蒜子脚本的隐藏计数页，不套用站点外壳，也不参与 SEO。
+      key: "visitCounter",
+      entry: "visit-counter/index.html",
+      path: "/visit-counter/",
+      injectSeo: false,
+      indexable: false,
+      inSitemap: false
+    }
+  ],
 
   statistics: {
     newVisitors: {
@@ -24,34 +101,12 @@ export const siteContent = {
     }
   },
 
-  seo: {
-    home: {
-      title: "阿峰｜个人主页",
-      description: "阿峰的个人网站。关于本人、项目、写作和生活中的兴趣。"
-    },
-    projects: {
-      title: "项目｜阿峰",
-      description: "阿峰做过和正在做的项目。"
-    },
-    writing: {
-      title: "写作｜阿峰",
-      description: "阿峰的写作精选，完整文章发布于独立博客。"
-    },
-    about: {
-      title: "关于｜阿峰",
-      description: "关于阿峰。"
-    },
-    notFound: {
-      title: "页面未找到｜阿峰",
-      description: "请求的页面不存在。"
-    }
-  },
-
   home: {
     intro: {
       greeting: "你好，我是阿峰",
       title: ["这里记录此刻，", "也为变化留白。"],
-      summary: "这是一个持续变化的个人空间。放下当下的状态、最近留下的痕迹，以及那些愿意长久保留的东西。"
+      summary:
+        "这是一个持续变化的个人空间。放下当下的状态、最近留下的痕迹，以及那些愿意长久保留的东西。"
     },
     now: {
       period: "2026.07",
@@ -113,7 +168,8 @@ export const siteContent = {
     heroTitle: "认识标签之外的我。",
     heroSummary: "这里不只列出身份和经历，也记录兴趣、做事方式，以及仍在形成中的部分。",
     principles: ["真实地完成一件事", "把复杂问题讲清楚", "给变化保留空间"],
-    profileSummary: "正在探索，也正在研究。通过学习、项目和写作，把模糊的问题一步步变成可见的结果。",
+    profileSummary:
+      "正在探索，也正在研究。通过学习、项目和写作，把模糊的问题一步步变成可见的结果。",
     coordinates: [
       { label: "专业", value: "计算机" },
       { label: "关注", value: "AI / Computer Vision" },
@@ -166,7 +222,8 @@ export const siteContent = {
           {
             title: "这个个人网站",
             eyebrow: "真实项目",
-            summary: "关于个人表达、信息架构、视觉设计和 React 实现的一次长期尝试。它本身就是当前最完整的项目证据。",
+            summary:
+              "关于个人表达、信息架构、视觉设计和 React 实现的一次长期尝试。它本身就是当前最完整的项目证据。",
             role: "设计与开发",
             stack: "React · Vite · Liquid Glass",
             status: "持续迭代",
@@ -215,3 +272,7 @@ export const siteContent = {
     feedUrl: "https://bianchengafeng.xyz/index.xml"
   }
 };
+
+export const { site, identity, pages, statistics, home, about, projects, writing } = siteContent;
+
+export const navPages = pages.filter((page) => page.navLabel);

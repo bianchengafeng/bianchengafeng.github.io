@@ -1,0 +1,156 @@
+/* 404 页面。 */
+
+.not-found-page {
+  padding-top: 104px;
+}
+.not-found-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.72fr) minmax(340px, 1fr) minmax(230px, 0.56fr);
+  gap: clamp(32px, 5vw, 80px);
+  align-items: center;
+  min-height: calc(100svh - 104px);
+  padding: 72px 0;
+}
+.not-found-code {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 380px;
+  overflow: hidden;
+  color: var(--accent-strong);
+}
+.not-found-code::before {
+  position: absolute;
+  inset: 10% 3%;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  content: "";
+  transform: rotate(-9deg);
+}
+.not-found-code::after {
+  position: absolute;
+  width: 58%;
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--cyan) 56%, var(--line));
+  border-radius: 50%;
+  content: "";
+  transform: rotate(18deg);
+}
+.not-found-code > span {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(112px, 13vw, 210px);
+  font-weight: 720;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+}
+.not-found-code small {
+  position: absolute;
+  right: 50%;
+  bottom: 13%;
+  z-index: 2;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  transform: translateX(50%);
+  white-space: nowrap;
+}
+.not-found-copy > span,
+.not-found-path small {
+  color: var(--accent-strong);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+.not-found-copy h1 {
+  max-width: 10ch;
+  margin-top: 16px;
+  font-size: clamp(46px, 5vw, 76px);
+  font-weight: 620;
+}
+.not-found-copy p {
+  max-width: 46ch;
+  margin: 24px 0 0;
+  color: var(--muted);
+}
+.not-found-actions {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+.not-found-actions a {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.not-found-actions .primary-link {
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+}
+.not-found-path {
+  align-self: end;
+  padding: 20px 0;
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line);
+}
+.not-found-path code {
+  display: block;
+  overflow-wrap: anywhere;
+  margin-top: 12px;
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 650;
+}
+.not-found-path span {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media (max-width: 980px) {
+  .not-found-stage {
+    grid-template-columns: 0.72fr 1fr;
+  }
+  .not-found-path {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 680px) {
+  .not-found-page {
+    padding-top: 136px;
+  }
+  .not-found-stage {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    min-height: auto;
+    padding: 36px 0 64px;
+  }
+  .not-found-code {
+    min-height: 230px;
+    font-size: clamp(94px, 30vw, 150px);
+  }
+  .not-found-code small {
+    bottom: 8%;
+    font-size: 7px;
+  }
+  .not-found-copy h1 {
+    font-size: clamp(40px, 12vw, 56px);
+  }
+  .not-found-path {
+    grid-column: auto;
+    align-self: auto;
+  }
+}

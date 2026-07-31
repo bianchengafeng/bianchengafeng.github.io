@@ -1,0 +1,495 @@
+/* 项目页：分类目录与项目浏览器。 */
+
+.projects-visual-hero {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent-soft) 78%, var(--surface)),
+    var(--surface)
+  );
+}
+.project-hero-visual {
+  position: relative;
+  min-height: 340px;
+}
+.project-window {
+  position: absolute;
+  inset: 12% 5% 15% 0;
+  overflow: hidden;
+  padding: 58px 24px 24px;
+  border: 1px solid color-mix(in srgb, var(--accent) 36%, transparent);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--glass-panel) 86%, transparent);
+  box-shadow:
+    20px 25px 0 color-mix(in srgb, var(--accent) 9%, transparent),
+    0 28px 55px var(--glass-shadow);
+  backdrop-filter: blur(12px);
+}
+.project-window::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 38px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 23%, transparent);
+  content: "";
+}
+.project-window > i {
+  position: absolute;
+  top: 15px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.project-window > i:nth-child(1) {
+  left: 17px;
+}
+.project-window > i:nth-child(2) {
+  left: 32px;
+  background: var(--cyan);
+}
+.project-window > i:nth-child(3) {
+  left: 47px;
+  background: var(--muted);
+}
+.project-window span {
+  color: var(--glass-ink);
+  font-family: Consolas, monospace;
+  font-size: clamp(14px, 1.5vw, 20px);
+}
+.project-stack {
+  position: absolute;
+  right: -3%;
+  bottom: 4%;
+  width: 100px;
+  height: 110px;
+}
+.project-stack i {
+  position: absolute;
+  width: 84px;
+  height: 54px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 13px;
+  background: rgba(6, 182, 212, 0.35);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.14);
+  transform: rotate(-8deg);
+}
+.project-stack i:nth-child(2) {
+  top: 20px;
+  left: 10px;
+  background: rgba(59, 130, 246, 0.45);
+  transform: rotate(5deg);
+}
+.project-stack i:nth-child(3) {
+  top: 40px;
+  left: 2px;
+  background: rgba(255, 255, 255, 0.58);
+  transform: rotate(-2deg);
+}
+
+.project-categories {
+  padding: 82px 0;
+}
+.project-categories > header > span {
+  color: var(--accent-strong);
+  font-size: 9px;
+  font-weight: 680;
+  letter-spacing: 0.16em;
+}
+.project-categories > header {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr 0.7fr;
+  gap: 30px;
+  align-items: end;
+  margin-bottom: 34px;
+}
+.project-categories > header h2 {
+  font-size: clamp(35px, 4vw, 58px);
+  font-weight: 620;
+}
+.project-categories > header p {
+  margin: 0;
+  color: var(--muted);
+}
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.category-card {
+  position: relative;
+  min-height: 300px;
+  overflow: hidden;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--surface);
+  transition:
+    transform 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
+}
+.category-card:hover {
+  box-shadow: var(--hover-shadow);
+  transform: translateY(-4px);
+}
+.category-card > div {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 10px;
+}
+.category-card > div svg {
+  width: 25px;
+  color: var(--accent);
+}
+.category-card h3 {
+  margin-top: 80px;
+  font-size: 25px;
+  font-weight: 630;
+}
+.category-card p {
+  color: var(--muted);
+  font-size: 13px;
+}
+.category-card > small {
+  position: absolute;
+  right: 22px;
+  bottom: 19px;
+  left: 22px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+.category-blue {
+  background: linear-gradient(
+    150deg,
+    var(--surface),
+    color-mix(in srgb, var(--accent-soft) 62%, var(--surface))
+  );
+}
+.category-cyan {
+  background: linear-gradient(
+    150deg,
+    var(--surface),
+    color-mix(in srgb, var(--cyan-soft) 54%, var(--surface))
+  );
+}
+.category-dark {
+  background: var(--dark-panel);
+  color: var(--on-dark);
+}
+.category-dark p,
+.category-dark > small,
+.category-dark > div {
+  color: var(--on-dark-muted);
+}
+.category-dark > div svg {
+  color: var(--cyan);
+}
+
+.project-detail-list {
+  display: grid;
+  gap: 16px;
+  scroll-margin-top: 100px;
+}
+.project-detail {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background: var(--surface);
+  scroll-margin-top: 96px;
+}
+.project-detail > header {
+  display: flex;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--line);
+}
+.project-detail > header span {
+  color: var(--accent-strong);
+  font-size: 10px;
+  font-weight: 680;
+  letter-spacing: 0.13em;
+}
+.project-detail > header strong {
+  color: var(--muted);
+  font-size: 11px;
+}
+.project-collection-intro {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr;
+  gap: 48px;
+  align-items: end;
+  padding: 40px 34px;
+  border-bottom: 1px solid var(--line);
+}
+.project-collection-intro small,
+.project-entry-copy small {
+  color: var(--accent-strong);
+  font-size: 9px;
+  font-weight: 680;
+  letter-spacing: 0.14em;
+}
+.project-collection-intro h2 {
+  max-width: 16ch;
+  margin-top: 10px;
+  font-size: clamp(32px, 3.5vw, 52px);
+  font-weight: 620;
+}
+.project-collection-intro p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.project-browser {
+  background: var(--surface);
+}
+.project-browser-toolbar,
+.project-browser-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 34px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+.project-browser-toolbar > div {
+  display: flex;
+  gap: 6px;
+}
+.project-browser-toolbar button {
+  display: grid;
+  width: 34px;
+  height: 30px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s;
+}
+.project-browser-toolbar button:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.project-browser-toolbar button.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.project-browser-nav {
+  border-top: 0;
+  border-bottom: 0;
+}
+.project-browser-nav button {
+  min-width: 82px;
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.project-browser-nav button:not(:disabled):hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent-soft) 56%, var(--surface-2));
+}
+.project-browser-nav button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.project-entry-list {
+  display: grid;
+  align-content: start;
+}
+.project-entry {
+  display: grid;
+  grid-template-columns: 72px minmax(260px, 1.2fr) minmax(240px, 0.78fr) minmax(150px, 0.45fr);
+  gap: 28px;
+  align-items: center;
+  min-height: 240px;
+  padding: 32px 34px;
+  border-bottom: 1px solid var(--line);
+}
+.project-entry-index {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 10px;
+}
+.project-entry-index svg {
+  width: 30px;
+  color: var(--accent);
+}
+.project-entry-copy h3 {
+  margin-top: 10px;
+  font-size: clamp(27px, 2.5vw, 40px);
+  font-weight: 620;
+}
+.project-entry-copy p {
+  max-width: 58ch;
+  color: var(--muted);
+}
+.project-entry dl {
+  margin: 0;
+}
+.project-entry dl div {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 10px;
+  padding: 9px 0;
+  border-top: 1px solid var(--line);
+}
+.project-entry dt {
+  color: var(--muted);
+}
+.project-entry dd {
+  margin: 0;
+}
+.project-entry-action {
+  justify-self: end;
+}
+.project-entry-action a {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--accent-strong);
+  font-weight: 620;
+}
+.project-entry-action svg {
+  width: 16px;
+}
+.project-entry-action span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.project-detail-empty > div {
+  display: grid;
+  grid-template-columns: 48px minmax(200px, 0.55fr) 1fr;
+  gap: 24px;
+  align-items: center;
+  min-height: 168px;
+  padding: 28px 34px;
+}
+.project-detail-empty > div > svg {
+  width: 34px;
+  color: var(--accent);
+}
+.project-detail-empty h3 {
+  font-size: clamp(25px, 3vw, 38px);
+  font-weight: 620;
+}
+.project-detail-empty p {
+  max-width: 62ch;
+  color: var(--muted);
+}
+
+@media (max-width: 1180px) {
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 980px) {
+  .project-hero-visual {
+    min-height: 300px;
+  }
+  .project-categories > header {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .project-entry {
+    grid-template-columns: 58px 1fr 1fr;
+  }
+  .project-entry-action {
+    grid-column: 2 / -1;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+  .project-collection-intro {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .project-entry {
+    grid-template-columns: 52px 1fr;
+  }
+  .project-entry dl,
+  .project-entry-action {
+    grid-column: 2;
+  }
+  .project-detail-empty > div {
+    grid-template-columns: 52px 1fr;
+  }
+  .project-detail-empty > div p {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 680px) {
+  .project-hero-visual {
+    min-height: 260px;
+  }
+  .project-window {
+    inset: 10% 0 14%;
+  }
+  .category-card {
+    min-height: 270px;
+  }
+  .project-detail > header {
+    gap: 12px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .project-collection-intro {
+    padding: 30px 22px;
+  }
+  .project-browser-toolbar,
+  .project-browser-nav {
+    padding-inline: 22px;
+  }
+  .project-entry-list {
+    min-height: 0;
+  }
+  .project-entry {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    min-height: 0;
+    padding: 28px 22px;
+  }
+  .project-entry-index {
+    height: auto;
+    flex-direction: row;
+  }
+  .project-entry dl,
+  .project-entry-action {
+    grid-column: 1;
+  }
+  .project-detail-empty > div {
+    grid-template-columns: 42px 1fr;
+    min-height: 0;
+    padding: 26px 22px;
+  }
+  .project-detail-empty > div p {
+    grid-column: 2;
+    margin-top: -10px;
+  }
+}
