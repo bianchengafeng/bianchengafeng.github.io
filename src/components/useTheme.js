@@ -1,4 +1,5 @@
 import { useLayoutEffect, useState } from "react";
+import { site } from "../content/site.js";
 
 const STORAGE_KEY = "theme";
 
@@ -22,6 +23,12 @@ export function useTheme() {
   // 在绘制前写入属性，避免系统暗色首帧闪一下亮色的玻璃高光。
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme;
+    // 构建期注入的 theme-color 只跟随系统偏好；站内切换后把它们改写成当前主题色，
+    // 让移动端浏览器地址栏与页面背景一致。
+    const color = site.themeColor[theme];
+    document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+      meta.setAttribute("content", color);
+    });
   }, [theme]);
 
   // 只有用户显式切换才持久化；仅由系统偏好推断出的主题不写入，

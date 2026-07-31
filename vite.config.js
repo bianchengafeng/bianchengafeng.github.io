@@ -19,6 +19,18 @@ const escapeHtml = (value) =>
 // Vite 用 HTML 的相对路径标识每个入口，"/index.html" 对应根页面。
 const pageByEntry = new Map(pages.map((page) => [`/${page.entry}`, page]));
 
+// 在首次绘制前确定主题，避免存了暗色偏好的访客刷新时闪一下亮色。
+// 判定逻辑必须与 src/components/useTheme.js 的初始值保持一致。
+const themeBootScript = [
+  "(function () {",
+  "  var theme = null;",
+  '  try { theme = localStorage.getItem("theme"); } catch (error) {}',
+  '  if (theme !== "light" && theme !== "dark")',
+  '    theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";',
+  "  document.documentElement.dataset.theme = theme;",
+  "})();"
+].join("\n");
+
 function renderSeoTags(page) {
   const canonical = absoluteUrl(page.path);
   const image = absoluteUrl(site.socialImage);
@@ -112,6 +124,11 @@ function siteMetadataPlugin() {
         return {
           html: html.replace("<!--seo-->", renderSeoTags(page)),
           tags: [
+            {
+              tag: "script",
+              injectTo: "head-prepend",
+              children: themeBootScript
+            },
             {
               tag: "noscript",
               injectTo: "body",
