@@ -226,6 +226,7 @@ function NotFoundPage() {
 }
 
 function Footer() {
+  const [statsExplained, setStatsExplained] = useState(false);
   const localPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname) || window.location.hostname.endsWith(".local");
 
   useEffect(() => {
@@ -285,9 +286,19 @@ function Footer() {
     <div className="footer-main">
       <div className="footer-identity"><span>{identity.siteLabel}</span><strong>感谢到访。</strong><p>这是{identity.name}的个人网站。近况、项目与入口会随真实内容更新。</p></div>
       <div className="footer-utility">
-        <div className="footer-stats" aria-label={`自 ${statistics.since} 起的网站访问统计`}>
-          <div className="footer-stat"><small>VISITORS · SINCE {statistics.since}</small><span><strong id="busuanzi_value_site_uv">读取中</strong> 位访客</span></div>
-          <div className="footer-stat"><small>PAGE VIEWS · SINCE {statistics.since}</small><span><strong id="busuanzi_value_site_pv">读取中</strong> 次访问</span></div>
+        <div className="footer-statistics">
+          <div className="footer-stats" aria-label={`自 ${statistics.since} 起的网站访问统计`}>
+            <div className="footer-stat"><small>VISITORS · SINCE {statistics.since}</small><span><strong id="busuanzi_value_site_uv">读取中</strong> 位访客</span></div>
+            <div className="footer-stat"><small>PAGE VIEWS · SINCE {statistics.since}</small><span><strong id="busuanzi_value_site_pv">读取中</strong> 次访问</span></div>
+          </div>
+          <button className="stats-explain-toggle" type="button" aria-expanded={statsExplained} aria-controls="stats-explanation" onClick={() => setStatsExplained((visible) => !visible)}>
+            <span aria-hidden="true">i</span>{statsExplained ? "收起说明" : "统计说明"}
+          </button>
+          <div className="stats-explanation" id="stats-explanation" hidden={!statsExplained}>
+            <p><strong>访客</strong>是第三方统计服务识别出的访客数量。同一设备和网络环境下重复刷新，通常仍算同一位；更换设备、浏览器或网络后，可能被识别为新访客。</p>
+            <p><strong>访问</strong>是页面载入次数。打开页面或刷新页面，通常都会增加一次。</p>
+            <p>这里仅展示自 <strong>{statistics.since}</strong> 起的新增量：当前累计值减去旧站历史基线。数字可能受到去重规则、爬虫、拦截器和网络环境影响，只用于了解大致趋势，不代表严格真实人数。</p>
+          </div>
         </div>
         <nav className="footer-links" aria-label="页脚链接">
           <a href={`mailto:${identity.email}`}>Email <Icon name="arrow"/></a>
