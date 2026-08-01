@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { identity, navPages, site } from "../content/site.js";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { navPages } from "../content/site.js";
 import { Icon } from "./Icon.jsx";
 import { generateLensMap } from "../lens-map.js";
 
@@ -22,6 +22,7 @@ function NavGlassPill({ active }) {
     const mapUrl = generateLensMap({ width: 240, height: 96, radius: 48, power: 1.6 });
     document.querySelectorAll(".lens-map").forEach((el) => {
       el.setAttribute("href", mapUrl);
+      el.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", mapUrl);
     });
   }, []);
 
@@ -39,8 +40,8 @@ function NavGlassPill({ active }) {
     }
   }, []);
 
-  // active 变化时定位；只在真正切换时触发扫光。
-  useEffect(() => {
+  // 首次绘制前完成定位，避免药丸从宽度 0 闪入；active 变化时才触发扫光。
+  useLayoutEffect(() => {
     place(activeRef.current, prevActive.current !== active);
     prevActive.current = active;
   }, [active, place]);
@@ -83,52 +84,23 @@ function NavGlassPill({ active }) {
   );
 }
 
-function HeaderInner({ active, theme, onToggleTheme }) {
-  const toggleLabel = theme === "dark" ? "切换至浅色主题" : "切换至深色主题";
-  return (
-    <div className="header-inner">
-      <a className="site-brand" href="/" aria-label={`${identity.name}的个人主页`}>
-        <img src={site.socialImage} alt="" width="34" height="34" draggable="false" />
-        <span>{identity.name}</span>
-      </a>
-      <NavGlassPill active={active} />
-      <div className="header-actions">
-        <button
-          className="theme-toggle"
-          type="button"
-          onClick={onToggleTheme}
-          aria-label={toggleLabel}
-          title={toggleLabel}
-        >
-          <Icon name="sun" />
-          <Icon name="moon" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
 export function SiteHeader({ active, theme, onToggleTheme }) {
-  // 高光跟随指针：把坐标写成 CSS 变量，交给样式层处理渐变位置。
-  const trackGlassPointer = (event) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    event.currentTarget.style.setProperty("--glass-x", `${event.clientX - rect.left}px`);
-    event.currentTarget.style.setProperty("--glass-y", `${event.clientY - rect.top}px`);
-  };
-  const resetGlassPointer = (event) => {
-    event.currentTarget.style.removeProperty("--glass-x");
-    event.currentTarget.style.removeProperty("--glass-y");
-  };
+  const toggleLabel = theme === "dark" ? "切换至浅色主题" : "切换至深色主题";
 
   return (
-    <header
-      className="site-header"
-      onPointerMove={trackGlassPointer}
-      onPointerLeave={resetGlassPointer}
-    >
-      {/* v2 原型的整条玻璃：纯 CSS backdrop-filter + bar-lens 轻折射，通透不灰 */}
+    <header className="site-header">
       <span className="bar-warp" aria-hidden="true" />
-      <HeaderInner active={active} theme={theme} onToggleTheme={onToggleTheme} />
+      <NavGlassPill active={active} />
+      <button
+        className="theme-toggle"
+        type="button"
+        onClick={onToggleTheme}
+        aria-label={toggleLabel}
+        title={toggleLabel}
+      >
+        <Icon name="sun" />
+        <Icon name="moon" />
+      </button>
     </header>
   );
 }

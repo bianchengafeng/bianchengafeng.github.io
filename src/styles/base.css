@@ -131,10 +131,6 @@
 }
 :root[data-theme="dark"] .bar-warp {
   background: rgba(255, 255, 255, 0.025);
-  box-shadow:
-    0 16px 44px rgba(2, 6, 23, 0.55),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -1px 0 rgba(125, 211, 252, 0.2);
 }
 /* 暗色下药丸：高光压低、阴影加黑 */
 :root[data-theme="dark"] .pill-shine {
@@ -242,155 +238,76 @@ h3 {
   text-underline-offset: 3px;
 }
 
-/* 导航栏 */
+/* 顶栏完全沿用 design-prototypes/v2-signature.html：居中、紧凑、单排。 */
 .site-header {
-  --glass-x: 36%;
-  --glass-y: 24%;
   position: fixed;
-  top: 10px;
-  right: 0;
-  left: 0;
+  top: 14px;
+  left: 50%;
   z-index: 100;
-  width: min(calc(100% - 28px), 1170px);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  width: max-content;
+  max-width: calc(100% - 16px);
   height: 62px;
-  margin-inline: auto;
+  padding: 0 10px;
+  border: 0.5px solid var(--glass-border);
   border-radius: 31px;
+  box-shadow:
+    0 16px 44px rgba(15, 23, 42, 0.16),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(103, 232, 249, 0.28);
+  transform: translateX(-50%);
+  white-space: nowrap;
 }
-.site-header::before {
-  position: absolute;
-  inset: -6px -14px;
-  z-index: -2;
-  border-radius: 999px;
-  background:
-    radial-gradient(
-      ellipse at var(--glass-x) var(--glass-y),
-      rgba(255, 255, 255, 0.56),
-      transparent 28%
-    ),
-    radial-gradient(ellipse at 86% 64%, rgba(103, 232, 249, 0.14), transparent 48%);
-  content: "";
-  filter: blur(16px);
-  opacity: 0.28;
-  pointer-events: none;
-  transition: background-position 0.15s var(--ease);
+:root[data-theme="dark"] .site-header {
+  box-shadow:
+    0 16px 44px rgba(2, 6, 23, 0.55),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(125, 211, 252, 0.2);
 }
-/* 整条导航的玻璃本体（v2 招牌版）：纯 CSS backdrop-filter 磨砂 + bar-lens 轻位移折射。
-   相比 liquid-glass 的 WebGL shader 更通透干净，不会灰蒙蒙。 */
 .bar-warp {
   position: absolute;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   border-radius: inherit;
-  border: 0.5px solid var(--glass-border);
   background: rgba(255, 255, 255, 0.05);
-  box-shadow:
-    0 16px 44px rgba(15, 23, 42, 0.16),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -1px 0 rgba(103, 232, 249, 0.28);
   -webkit-backdrop-filter: blur(14px) saturate(185%);
   backdrop-filter: blur(14px) saturate(185%);
   filter: url(#bar-lens);
 }
-.bar-warp::before {
-  position: absolute;
-  inset: 1px;
-  z-index: 2;
-  border: 1px solid transparent;
-  border-radius: inherit;
-  background:
-    radial-gradient(
-        ellipse at var(--glass-x) var(--glass-y),
-        rgba(255, 255, 255, 0.9),
-        rgba(255, 255, 255, 0.18) 16%,
-        transparent 40%
-      )
-      border-box,
-    linear-gradient(
-        120deg,
-        rgba(255, 255, 255, 0.7),
-        transparent 38%,
-        rgba(103, 232, 249, 0.18) 76%,
-        rgba(255, 255, 255, 0.42)
-      )
-      border-box;
-  content: "";
-  -webkit-mask:
-    linear-gradient(#000 0 0) padding-box,
-    linear-gradient(#000 0 0);
-  mask:
-    linear-gradient(#000 0 0) padding-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0.9;
-  pointer-events: none;
-}
-.header-inner {
+.site-header nav,
+.site-header .theme-toggle {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: 148px minmax(0, 1fr) 148px;
-  gap: 10px;
-  align-items: center;
-  width: 100%;
-  min-height: 62px;
-  padding: 0 9px 0 13px;
 }
-.site-brand {
-  display: inline-flex;
-  gap: 9px;
-  align-items: center;
-  width: fit-content;
-  font-size: var(--text-sm);
-  font-weight: 600;
-  transition: color 0.2s;
-}
-.site-brand:hover {
-  color: var(--accent-strong);
-}
-.site-brand img {
-  width: 34px;
-  height: 34px;
-  border: 2px solid var(--glass-border);
-  border-radius: 50%;
-  object-fit: cover;
-  box-shadow: 0 3px 12px color-mix(in srgb, var(--accent) 24%, transparent);
-  -webkit-user-drag: none;
-  user-select: none;
-}
-/* nav 是药丸（absolute）的定位上下文：position: relative 必不可少，
-   否则药丸的 left/translateX 会按外层容器计算，停不到标签下面。 */
-.header-inner nav {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 3px;
-  width: 100%;
+.site-header nav {
+  display: flex;
+  gap: 2px;
   padding: 3px;
   border-radius: var(--radius-full);
 }
-.header-inner nav a {
+.site-header nav a {
   position: relative;
   z-index: 2;
   display: grid;
-  min-height: 38px;
-  padding: 0 17px;
+  min-height: 44px;
+  padding: 0 22px;
   place-items: center;
   border-radius: var(--radius-full);
-  color: var(--glass-muted);
-  font-size: var(--text-xs);
+  color: var(--muted);
+  font-size: var(--text-sm);
   text-decoration: none;
   cursor: pointer;
   transition: color 0.25s;
 }
-.header-inner nav a:hover,
-.header-inner nav a.active {
-  color: var(--glass-ink);
+.site-header nav a:hover,
+.site-header nav a.active {
+  color: var(--ink);
 }
 
-/* ---- 液态玻璃药丸 v2 招牌版 ---- */
-/* 三层结构：外层容器（定位+弹簧过渡）、中层 pill-warp（SVG 透镜）、内层 pill-shine（高光+扫光） */
+/* v2 招牌版：外层负责弹簧位移，中层折射，内层高光与扫光。 */
 .nav-glass-pill {
   position: absolute;
   top: 3px;
@@ -425,9 +342,7 @@ h3 {
     inset -2px 0 2px -1px rgba(255, 255, 255, 0.5),
     0 3px 14px rgba(15, 23, 42, 0.16);
 }
-/* 斜向扫光：落位时从左到右扫过 */
 .pill-shine::after {
-  content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -437,41 +352,32 @@ h3 {
     rgba(255, 255, 255, 0.1) 55%,
     transparent 70%
   );
-  background-size: 260% 100%;
   background-position: 100% 0;
+  background-size: 260% 100%;
+  content: "";
   transition: background-position 0.9s ease;
 }
 .nav-glass-pill.sheen .pill-shine::after {
   background-position: 0 0;
-}
-.header-actions {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  justify-self: end;
 }
 .theme-toggle {
   display: grid;
   width: 38px;
   height: 38px;
   padding: 0;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.44);
+  border: 1px solid var(--glass-border);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.12);
+  place-items: center;
+  color: var(--ink);
   cursor: pointer;
-  transition:
-    background 0.2s,
-    border-color 0.2s;
 }
 .theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.26);
+  background: rgba(255, 255, 255, 0.22);
 }
 :root[data-theme="dark"] .theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.08);
 }
-/* 太阳 / 月亮两枚图标叠在同一格里，随主题旋转淡入淡出。 */
 .theme-toggle svg {
   grid-area: 1 / 1;
   transition:
@@ -752,12 +658,6 @@ footer {
     grid-template-columns: 1fr;
     min-height: auto;
   }
-  .site-header {
-    width: min(calc(100% - 22px), 1020px);
-  }
-  .header-inner {
-    grid-template-columns: 120px minmax(0, 1fr) 120px;
-  }
 }
 
 @media (max-width: 760px) {
@@ -768,12 +668,6 @@ footer {
   .inner-hero-copy h1 {
     font-size: clamp(42px, 9vw, 62px);
   }
-  .site-header {
-    width: calc(100% - 18px);
-  }
-  .header-inner nav a {
-    padding-inline: 11px;
-  }
 }
 
 @media (max-width: 680px) {
@@ -782,41 +676,9 @@ footer {
   }
   .site-header {
     top: 8px;
-    height: 106px;
-    border-radius: var(--radius-lg);
   }
-  .header-inner {
-    grid-template-columns: 1fr auto;
-    grid-template-rows: 49px 49px;
-    gap: 0;
-    min-height: 106px;
-    padding: 4px 8px 4px 11px;
-  }
-  .site-brand img {
-    width: 32px;
-    height: 32px;
-  }
-  .header-inner nav {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    align-self: stretch;
-    justify-content: space-between;
-    padding: 3px;
-  }
-  .header-inner nav a {
-    min-height: 44px;
-    padding-inline: clamp(10px, 4vw, 18px);
-  }
-  .header-actions {
-    grid-column: 2;
-    grid-row: 1;
-  }
-  .theme-toggle {
-    width: 36px;
-    height: 36px;
-  }
-  .inner-page {
-    padding-top: 136px;
+  .site-header nav a {
+    padding-inline: clamp(11px, 3.7vw, 18px);
   }
   .inner-visual-hero {
     padding: 25px;
@@ -836,6 +698,23 @@ footer {
   }
   .footer-stats > div {
     min-height: 84px;
+  }
+}
+
+@media (max-width: 390px) {
+  .site-header {
+    gap: 7px;
+    padding-inline: 6px;
+  }
+  .site-header nav {
+    gap: 0;
+  }
+  .site-header nav a {
+    padding-inline: 10px;
+  }
+  .theme-toggle {
+    width: 36px;
+    height: 36px;
   }
 }
 
