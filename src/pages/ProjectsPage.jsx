@@ -96,10 +96,10 @@ function ProjectBrowser({ category }) {
   );
 
   return (
-    <div className="project-browser" aria-live="polite">
+    <div className="project-browser">
       {hasMultiplePages && (
         <div className="project-browser-toolbar">
-          <span>
+          <span role="status" aria-live="polite">
             PAGE {String(page + 1).padStart(2, "0")} / {String(pageCount).padStart(2, "0")}
           </span>
           <div>
@@ -109,7 +109,7 @@ function ProjectBrowser({ category }) {
                 className={page === index ? "active" : ""}
                 onClick={() => setRequestedPage(index)}
                 aria-label={`查看第 ${index + 1} 页项目`}
-                aria-pressed={page === index}
+                aria-current={page === index ? "page" : undefined}
                 key={index}
               >
                 {String(index + 1).padStart(2, "0")}

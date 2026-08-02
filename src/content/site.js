@@ -53,8 +53,8 @@ export const siteContent = {
       entry: "writing/index.html",
       path: "/writing/",
       navLabel: "博客",
-      title: "写作｜阿峰",
-      description: "阿峰的写作精选，完整文章发布于独立博客 bianchengafeng.xyz。",
+      title: "博客｜阿峰",
+      description: "阿峰的博客文章精选，完整内容发布于独立博客 bianchengafeng.xyz。",
       changefreq: "weekly",
       priority: "0.8"
     },

@@ -12,7 +12,7 @@ const bridgePages = navPages.filter((page) => page.key !== "home");
 
 function PortraitStage() {
   return (
-    <div className="portrait-stage" aria-label={`${identity.name}的个人头像`}>
+    <div className="portrait-stage">
       <div className="portrait-aura" aria-hidden="true" />
       <div className="portrait-grid" aria-hidden="true" />
       <div className="portrait-frame">
@@ -49,7 +49,7 @@ function NowBoard() {
           {home.now.headline[1]}
         </strong>
       </div>
-      <div className="focus-list" aria-label="当前状态">
+      <div className="focus-list">
         {home.now.focus.map((item) => (
           <div key={item.label}>
             <Icon name={item.icon} />

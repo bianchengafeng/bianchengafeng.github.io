@@ -7,7 +7,7 @@
 ## 技术栈
 
 - **React 19** + **Vite 6** 多页面静态构建，每个页面一个独立入口与 CSS 分块
-- **liquid-glass-react** 驱动导航栏的实时折射与边缘色散；分块懒加载，加载前用 CSS 玻璃质感占位
+- 自研液态玻璃导航：构建期注入 SVG `feDisplacementMap` 三通道色散滤镜，运行期用 Canvas 生成透镜贴图，弹簧过渡 + 落位扫光
 - 自动浅色 / 深色双主题，手动切换后写入 localStorage
 - 原版不蒜子 2.3 新访客增量 + 20 分钟无活动访问会话；两项按各自启用时点展示（异常时使用最近缓存或降级）
 - 构建期从内容配置生成每页 SEO 标签、`sitemap.xml`、`robots.txt` 与 `<noscript>` 兜底
@@ -87,10 +87,14 @@ src/
   content/site.js   内容与路由的唯一来源
   entries/          每个页面一个构建入口
   pages/            页面组件
-  components/       导航、页脚、外壳与图标
+  components/       导航、页脚、外壳、错误边界与图标
   styles/           base.css + 每页一个样式文件
   statistics.js     访问统计（会话判定、缓存、跨标签页锁）
   writing-feed.js   RSS 抓取与解析
+  project-pagination.js  项目分页计算
+  lens-map.js       Canvas 生成玻璃透镜位移贴图
+  visit-counter.js  承载不蒜子的隐藏计数页脚本
+tests/              node:test 单元测试（statistics / writing-feed / project-pagination / 样式约定）
 ```
 
 ## License

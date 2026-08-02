@@ -81,5 +81,29 @@ test("HTTP成功且RSS为空时保留真实空状态", async () => {
     parseXml: createParser()
   });
   assert.deepEqual(posts, []);
-  assert.deepEqual(requestOptions, { cache: "no-store" });
+  assert.equal(requestOptions.cache, "no-store");
+  assert.ok(requestOptions.signal, "请求应带超时 signal");
+});
+
+test("外部 RSS 的 javascript:/data: 链接回退到博客地址", () => {
+  const posts = parseWritingFeed(
+    "<rss />",
+    "https://example.com",
+    createParser([{ title: "危险链接", link: "javascript:alert(1)", pubDate: "" }])
+  );
+  assert.equal(posts[0].link, "https://example.com");
+});
+
+test("调用方传入的 signal 会原样透传给 fetch", async () => {
+  let receivedSignal;
+  const controller = new AbortController();
+  await loadWritingFeed("https://example.com/index.xml", "https://example.com", {
+    fetchFeed: async (_url, options) => {
+      receivedSignal = options.signal;
+      return { ok: true, text: async () => "<rss />" };
+    },
+    parseXml: createParser(),
+    signal: controller.signal
+  });
+  assert.equal(receivedSignal, controller.signal);
 });

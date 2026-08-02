@@ -97,16 +97,6 @@
 .not-found-actions a:hover {
   color: var(--accent-strong);
 }
-.not-found-actions .primary-link {
-  padding: 0 18px;
-  border-radius: var(--radius-full);
-  background: var(--ink);
-  color: var(--bg);
-}
-.not-found-actions .primary-link:hover {
-  background: var(--accent-strong);
-  color: var(--on-accent);
-}
 .not-found-path {
   align-self: end;
   padding: 20px 0;

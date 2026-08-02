@@ -25,7 +25,8 @@ function useWritingFeed() {
 
   useEffect(() => {
     let cancelled = false;
-    loadWritingFeed(writing.feedUrl, identity.blogUrl)
+    const controller = new AbortController();
+    loadWritingFeed(writing.feedUrl, identity.blogUrl, { signal: controller.signal })
       .then((posts) => {
         if (!cancelled) setState({ status: "ready", posts });
       })
@@ -34,6 +35,7 @@ function useWritingFeed() {
       });
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, []);
 

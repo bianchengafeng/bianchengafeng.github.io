@@ -69,7 +69,19 @@ function useVisitStatistics() {
       if (cached && !cancelled) setStats(cached);
     };
 
-    recordActivity();
+    // 首次计数推迟到 window load 之后：隐藏 iframe + 不蒜子第三方脚本
+    // 不该挤进首屏加载窗口，会话判定基于时间戳，延后几秒不影响正确性。
+    let started = false;
+    const start = () => {
+      if (started || cancelled) return;
+      started = true;
+      recordActivity();
+    };
+    if (document.readyState === "complete") {
+      start();
+    } else {
+      window.addEventListener("load", start, { once: true });
+    }
     window.addEventListener("pointerdown", recordActivity, { passive: true });
     window.addEventListener("keydown", recordActivity);
     window.addEventListener("storage", syncCachedStatistics);
@@ -78,6 +90,7 @@ function useVisitStatistics() {
 
     return () => {
       cancelled = true;
+      window.removeEventListener("load", start);
       window.removeEventListener("pointerdown", recordActivity);
       window.removeEventListener("keydown", recordActivity);
       window.removeEventListener("storage", syncCachedStatistics);
@@ -128,6 +141,7 @@ export function SiteFooter() {
           <div className="footer-statistics">
             <div
               className="footer-stats"
+              role="group"
               aria-label="网站访问趋势；新访客与20分钟会话的口径和启用时点不同"
               aria-live="polite"
             >

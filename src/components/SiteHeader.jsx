@@ -18,12 +18,24 @@ function NavGlassPill({ active }) {
   const prevActive = useRef(active);
 
   // 注入透镜映射图到所有 .lens-map feImage 元素。
+  // 贴图是纯装饰（生成约 10-30ms），推迟到空闲时执行，避免与首帧抢主线程；
+  // 若 canvas 不可用则跳过注入，滤镜保持中性灰兜底、无色散但页面不崩。
   useEffect(() => {
-    const mapUrl = generateLensMap({ width: 240, height: 96, radius: 48, power: 1.6 });
-    document.querySelectorAll(".lens-map").forEach((el) => {
-      el.setAttribute("href", mapUrl);
-      el.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", mapUrl);
-    });
+    const injectMap = () => {
+      const mapUrl = generateLensMap({ width: 240, height: 96, radius: 48, power: 1.6 });
+      if (!mapUrl) return;
+      document.querySelectorAll(".lens-map").forEach((el) => {
+        el.setAttribute("href", mapUrl);
+        el.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", mapUrl);
+      });
+    };
+    const idleId = window.requestIdleCallback
+      ? window.requestIdleCallback(injectMap)
+      : window.setTimeout(injectMap, 200);
+    return () => {
+      if (window.requestIdleCallback) window.cancelIdleCallback(idleId);
+      else window.clearTimeout(idleId);
+    };
   }, []);
 
   const place = useCallback((tab, withSheen = false) => {
@@ -54,7 +66,14 @@ function NavGlassPill({ active }) {
   }, [place]);
 
   return (
-    <nav aria-label="主导航" onMouseLeave={() => place(activeRef.current)}>
+    <nav
+      aria-label="主导航"
+      onMouseLeave={() => place(activeRef.current)}
+      onBlur={(event) => {
+        // 键盘用户 Tab 进/出导航时，药丸跟随焦点项；焦点离开整个 nav 时弹回激活项。
+        if (!event.currentTarget.contains(event.relatedTarget)) place(activeRef.current);
+      }}
+    >
       <span
         ref={pillRef}
         className="nav-glass-pill"
@@ -76,6 +95,7 @@ function NavGlassPill({ active }) {
           href={page.path}
           aria-current={active === page.key ? "page" : undefined}
           onMouseEnter={(event) => place(event.currentTarget, true)}
+          onFocus={(event) => place(event.currentTarget, true)}
         >
           {page.navLabel}
         </a>

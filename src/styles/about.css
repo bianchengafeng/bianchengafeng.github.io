@@ -30,19 +30,15 @@
   -webkit-user-drag: none;
   user-select: none;
 }
-/* 档案徽标：与首页 .portrait-tag 同款玻璃 chip，两页悬浮小标签语言一致。 */
+/* 档案徽标：与首页 .portrait-tag 同款玻璃 chip（配方在全局 .glass-chip），两页悬浮小标签语言一致。 */
 .about-portrait > span {
   position: absolute;
   bottom: 6px;
   padding: 6px 10px;
-  border: 1px solid var(--glass-border);
   border-radius: var(--radius-full);
-  background: color-mix(in srgb, var(--glass) 78%, transparent);
   box-shadow:
     0 10px 24px var(--glass-shadow),
     inset 0 1px 0 var(--glass-highlight-soft);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   color: var(--glass-ink);
   font-size: var(--text-2xs);
   letter-spacing: 0.14em;

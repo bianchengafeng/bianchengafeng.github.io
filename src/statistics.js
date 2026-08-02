@@ -172,6 +172,9 @@ export function requestVisitStatistics(counterPath, timeoutMs = 10000) {
     frame.hidden = true;
     frame.tabIndex = -1;
     frame.setAttribute("aria-hidden", "true");
+    // 承载不蒜子第三方脚本的 iframe 加 sandbox：脚本被隔离到不透明源，
+    // 即便被篡改也无法以主站同源权限读写 DOM / localStorage。
+    frame.setAttribute("sandbox", "allow-scripts");
 
     const cleanup = () => {
       window.removeEventListener("message", handleMessage);
@@ -180,7 +183,9 @@ export function requestVisitStatistics(counterPath, timeoutMs = 10000) {
       counterRequest = undefined;
     };
     const handleMessage = (event) => {
-      if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
+      // sandbox 让 iframe 成为不透明源（origin 为 "null"）；event.source 校验保证只信这个 frame。
+      if (event.source !== frame.contentWindow) return;
+      if (event.origin !== window.location.origin && event.origin !== "null") return;
       if (event.data?.type !== COUNTER_MESSAGE) return;
       const visitors = Number(event.data.visitors);
       const sessions = Number(event.data.sessions);

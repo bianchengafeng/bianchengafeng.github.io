@@ -243,6 +243,30 @@ h3 {
   text-underline-offset: 3px;
 }
 
+/* 站点级工具类：全站唯一的 CTA 胶囊按钮。布局（display/gap/字号）由所在列表提供。 */
+.primary-link {
+  padding: 0 18px;
+  border-radius: var(--radius-full);
+  background: var(--ink);
+  color: var(--bg);
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.primary-link:hover {
+  background: var(--accent-strong);
+  color: var(--on-accent);
+}
+
+/* 站点级工具类：小尺寸玻璃 chip 的公共配方（边框/底色/磨砂）。
+   定位、圆角、额外的边缘高光等页面差异留在各自类里。 */
+.glass-chip {
+  border: 1px solid var(--glass-border);
+  background: color-mix(in srgb, var(--glass) 78%, transparent);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+
 /* 顶栏：v2 原型的紧凑居中玻璃 bar + 原版的品牌头像区与指针跟随柔光。 */
 .site-header {
   --glass-x: 50%;
@@ -845,12 +869,12 @@ footer {
   .bar-warp {
     background: color-mix(in srgb, var(--surface) 94%, var(--bg));
   }
-  /* 页面侧玻璃在不支持磨砂的浏览器里退成近实色面，避免低透明度浮层压在彩色 hero 上。 */
+  /* 页面侧玻璃在不支持磨砂的浏览器里退成近实色面，避免低透明度浮层压在彩色 hero 上。
+     .glass-chip 已收敛小 chip；这里只枚举不用 .glass-chip 的大面积玻璃面。 */
+  .glass-chip,
   .portrait-frame,
-  .portrait-tag,
   .blog-hero-mark,
-  .project-window,
-  .about-portrait > span {
+  .project-window {
     background: color-mix(in srgb, var(--surface) 92%, transparent);
   }
 }

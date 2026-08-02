@@ -13,7 +13,10 @@ export function generateLensMap({ width, height, radius, power }) {
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
+  // CanvasBlocker 等隐私扩展会用 null 全禁 2d 上下文；返回 null 让调用方跳过注入，
+  // SVG 滤镜保持 1x1 中性灰兜底（无色散但页面不崩）。
   const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
   const img = ctx.createImageData(width, height);
   const cx = width / 2;
   const cy = height / 2;

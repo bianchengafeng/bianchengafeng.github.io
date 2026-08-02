@@ -57,6 +57,22 @@ const themeBootScript = [
   "})();"
 ].join("\n");
 
+// 结构化数据：让搜索引擎把本站、独立博客与 GitHub 归一为同一个"阿峰"。
+const jsonLdGraph = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", name: identity.name, url: site.origin },
+    {
+      "@type": "Person",
+      name: identity.name,
+      alternateName: identity.romanizedName,
+      url: site.origin,
+      image: absoluteUrl(site.socialImage),
+      sameAs: [identity.githubUrl, identity.blogUrl]
+    }
+  ]
+};
+
 function renderSeoTags(page) {
   const canonical = absoluteUrl(page.path);
   const image = absoluteUrl(site.socialImage);
@@ -65,6 +81,11 @@ function renderSeoTags(page) {
     `<meta name="description" content="${escapeHtml(page.description)}" />`,
     `<link rel="canonical" href="${canonical}" />`,
     `<link rel="icon" type="image/png" href="${site.socialImage}" />`,
+    // 头像（顶栏品牌图 + 首页人像）只在 React 渲染结果里出现，预载让它与 JS 并行下载，
+    // 避免被串行在 67KB gzip 的 JS chunk 之后才发现。
+    `<link rel="preload" as="image" href="${site.socialImage}" fetchpriority="high" />`,
+    // 博客 RSS 的机器可读关联，供阅读器/爬虫从本站发现独立博客。
+    `<link rel="alternate" type="application/rss+xml" title="${escapeHtml(identity.blogName)}" href="${siteContent.writing.feedUrl}" />`,
     `<meta name="robots" content="${page.indexable === false ? "noindex,nofollow" : "index,follow"}" />`,
     `<meta name="theme-color" media="(prefers-color-scheme: light)" content="${site.themeColor.light}" />`,
     `<meta name="theme-color" media="(prefers-color-scheme: dark)" content="${site.themeColor.dark}" />`,
@@ -75,10 +96,15 @@ function renderSeoTags(page) {
     `<meta property="og:description" content="${escapeHtml(page.description)}" />`,
     `<meta property="og:url" content="${canonical}" />`,
     `<meta property="og:image" content="${image}" />`,
+    // 给宽高让分享抓取端免下载即可布局，补 alt 改善分享卡片可访问性。
+    `<meta property="og:image:width" content="460" />`,
+    `<meta property="og:image:height" content="460" />`,
+    `<meta property="og:image:alt" content="${escapeHtml(identity.name)}的头像" />`,
     `<meta name="twitter:card" content="summary" />`,
     `<meta name="twitter:title" content="${escapeHtml(page.title)}" />`,
     `<meta name="twitter:description" content="${escapeHtml(page.description)}" />`,
-    `<meta name="twitter:image" content="${image}" />`
+    `<meta name="twitter:image" content="${image}" />`,
+    `<script type="application/ld+json">${JSON.stringify(jsonLdGraph)}</script>`
   ].join("\n    ");
 }
 
@@ -189,7 +215,12 @@ export default defineConfig({
   build: {
     outDir: "dist",
     rollupOptions: {
-      input: Object.fromEntries(pages.map((page) => [page.key, resolveEntry(page.entry)]))
+      input: Object.fromEntries(pages.map((page) => [page.key, resolveEntry(page.entry)])),
+      output: {
+        // 把几乎不变的 react 运行时拆成独立 vendor chunk：改一行外壳代码时，
+        // 回访者只需重下几 KB 的外壳 chunk，react 部分靠稳定 hash 走缓存。
+        manualChunks: { react: ["react", "react-dom"] }
+      }
     }
   }
 });

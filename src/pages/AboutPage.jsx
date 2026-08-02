@@ -80,7 +80,7 @@ function LifeCollection() {
 
   return (
     <div className="life-collection">
-      <nav className="life-collection-tabs" aria-label="生活与兴趣分类">
+      <div role="group" className="life-collection-tabs" aria-label="生活与兴趣分类">
         {collections.map((collection, index) => (
           <button
             type="button"
@@ -94,8 +94,8 @@ function LifeCollection() {
             <small>{collection.items.length ? `${collection.items.length} 条` : "尚未整理"}</small>
           </button>
         ))}
-      </nav>
-      <div className="life-collection-panel" aria-live="polite">
+      </div>
+      <div className="life-collection-panel">
         <header>
           <div>
             <span>当前集合</span>
