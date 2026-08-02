@@ -20,6 +20,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          # sitemap 的 lastmod 需要按页取 git 最后提交日期，浅克隆拿不到历史。
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -33,6 +36,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Audit runtime dependencies
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Lint
         run: npm run lint
 
@@ -44,6 +50,11 @@ jobs:
 
       - name: Build site
         run: npm run build
+
+      - name: Check bundle size
+        # 当前 dist 约 366KB；阈值定 800KB，防误引大依赖后线上才变慢才发现。
+        run: |
+          node -e "const s = require('child_process').execSync('du -sk dist').toString().split('\t')[0]; if (+s > 800) { console.error('dist 超过 800KB: ' + s + 'KB'); process.exit(1) }"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4

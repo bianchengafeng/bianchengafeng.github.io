@@ -1,23 +1,19 @@
 import { useLayoutEffect, useState } from "react";
 import { site } from "../content/site.js";
-
-const STORAGE_KEY = "theme";
+import { resolveTheme, STORAGE_KEY } from "../theme-preference.js";
 
 function readStoredTheme() {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === "light" || saved === "dark") return saved;
+    return localStorage.getItem(STORAGE_KEY);
   } catch {
     // 主题持久化是可选的；读取失败时继续跟随系统偏好。
+    return null;
   }
-  return null;
 }
 
 export function useTheme() {
-  const [theme, setTheme] = useState(
-    () =>
-      readStoredTheme() ??
-      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+  const [theme, setTheme] = useState(() =>
+    resolveTheme(readStoredTheme(), window.matchMedia("(prefers-color-scheme: dark)").matches)
   );
 
   // 在绘制前写入属性，避免系统暗色首帧闪一下亮色的玻璃高光。
