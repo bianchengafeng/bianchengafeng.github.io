@@ -92,7 +92,7 @@
   color: var(--accent-strong);
 }
 .hero-links a svg {
-  transition: transform 0.2s var(--ease);
+  transition: transform 0.3s var(--spring);
 }
 .hero-links a:hover svg {
   transform: translateX(4px);
@@ -163,7 +163,8 @@
   box-shadow:
     0 24px 55px var(--glass-shadow),
     inset 0 0 28px var(--glass-highlight-soft);
-  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   transform: translate(-50%, -52%);
 }
 .portrait-frame img {
@@ -199,8 +200,12 @@
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--glass) 78%, transparent);
-  box-shadow: 0 10px 24px var(--glass-shadow);
-  backdrop-filter: blur(14px) saturate(145%);
+  box-shadow:
+    0 10px 24px var(--glass-shadow),
+    inset 0 1px 0 var(--glass-highlight-soft),
+    inset 0 -1px 0 color-mix(in srgb, var(--cyan) 24%, transparent);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
 }
 .portrait-tag span {
   color: var(--muted);
@@ -650,7 +655,7 @@ a.input-placeholder:hover > i {
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--surface) 72%, transparent);
   transition:
-    transform 0.28s var(--ease),
+    transform 0.35s var(--spring),
     border-color 0.2s,
     background 0.2s,
     box-shadow 0.28s var(--ease);
@@ -705,7 +710,7 @@ a.input-placeholder:hover > i {
 }
 .site-bridge nav svg {
   width: 19px;
-  transition: transform 0.25s var(--ease);
+  transition: transform 0.3s var(--spring);
 }
 .site-bridge nav a:hover svg {
   transform: translateX(4px);

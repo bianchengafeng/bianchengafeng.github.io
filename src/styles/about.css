@@ -30,13 +30,20 @@
   -webkit-user-drag: none;
   user-select: none;
 }
+/* 档案徽标：与首页 .portrait-tag 同款玻璃 chip，两页悬浮小标签语言一致。 */
 .about-portrait > span {
   position: absolute;
   bottom: 6px;
   padding: 6px 10px;
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-full);
-  background: var(--ink);
-  color: var(--bg);
+  background: color-mix(in srgb, var(--glass) 78%, transparent);
+  box-shadow:
+    0 10px 24px var(--glass-shadow),
+    inset 0 1px 0 var(--glass-highlight-soft);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  color: var(--glass-ink);
   font-size: var(--text-2xs);
   letter-spacing: 0.14em;
 }
@@ -211,7 +218,8 @@
   cursor: pointer;
   transition:
     background 0.2s var(--ease),
-    color 0.2s var(--ease);
+    color 0.2s var(--ease),
+    box-shadow 0.2s var(--ease);
 }
 .life-collection-tabs button:hover {
   background: color-mix(in srgb, var(--accent-soft) 36%, transparent);
@@ -223,12 +231,16 @@
 .life-collection-tabs button small {
   grid-column: 2;
 }
+/* 激活态走玻璃语言：玻璃底 + accent 指示条（纵向列表在左缘，横向时由断点改到下缘）。 */
 .life-collection-tabs button.active {
-  background: var(--dark-panel);
-  color: var(--on-dark-muted);
+  background: color-mix(in srgb, var(--glass) 65%, var(--surface));
+  color: var(--muted);
+  box-shadow:
+    inset 3px 0 0 var(--accent),
+    inset 0 1px 0 var(--glass-highlight-soft);
 }
 .life-collection-tabs button.active strong {
-  color: var(--on-dark);
+  color: var(--accent-strong);
 }
 .life-collection-panel {
   display: flex;
@@ -377,6 +389,12 @@
   .life-collection-tabs button {
     min-height: 96px;
   }
+  /* 横向排布时指示条改到下缘 */
+  .life-collection-tabs button.active {
+    box-shadow:
+      inset 0 -3px 0 var(--accent),
+      inset 0 1px 0 var(--glass-highlight-soft);
+  }
   .life-collection-panel {
     min-height: 0;
   }
@@ -401,6 +419,12 @@
   }
   .life-collection-tabs button {
     min-height: 76px;
+  }
+  /* 回到纵向列表，指示条回左缘 */
+  .life-collection-tabs button.active {
+    box-shadow:
+      inset 3px 0 0 var(--accent),
+      inset 0 1px 0 var(--glass-highlight-soft);
   }
   .life-collection-panel > header,
   .life-collection-items {

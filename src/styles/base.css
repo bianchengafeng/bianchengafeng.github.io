@@ -54,6 +54,11 @@
   --text-2xl: 20px;
   --text-3xl: 22px;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  /* 弹簧：全站约定为「位移用 0.35s 弹簧、阴影颜色仍走 --ease」，过冲的阴影会闪烁。 */
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 玻璃统一配方：所有 backdrop-filter 磨砂面走这两个令牌，与顶栏 .bar-warp 同参。 */
+  --glass-blur: 14px;
+  --glass-saturate: 185%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -268,6 +273,8 @@ h3 {
     inset 0 1.5px 0 rgba(255, 255, 255, 0.4),
     inset 0 -1px 0 rgba(125, 211, 252, 0.2);
 }
+/* 外层只做裁切壳：filter 的位移输出不受元素自身 overflow/圆角约束，
+   必须由父层裁掉，否则位移出去的磨砂会在顶栏外留下一圈错位的"底色"。 */
 .bar-warp {
   position: absolute;
   inset: 0;
@@ -275,8 +282,14 @@ h3 {
   overflow: hidden;
   border-radius: inherit;
   background: rgba(255, 255, 255, 0.05);
-  -webkit-backdrop-filter: blur(14px) saturate(185%);
-  backdrop-filter: blur(14px) saturate(185%);
+}
+.bar-warp::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  content: "";
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   filter: url(#bar-lens);
 }
 /* 指针跟随的柔光：hover 时一片高光跟着鼠标在玻璃上游走。 */
@@ -376,14 +389,21 @@ h3 {
   width: 0;
   border-radius: var(--radius-full);
   transition:
-    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
-    width 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform 0.45s var(--spring),
+    width 0.45s var(--spring);
 }
+/* 同 bar-warp：外壳裁切，磨砂与透镜折射在 ::before 内完成。 */
 .pill-warp {
   position: absolute;
   inset: 0;
   overflow: hidden;
   border-radius: inherit;
+}
+.pill-warp::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  content: "";
   -webkit-backdrop-filter: blur(2px) saturate(170%);
   backdrop-filter: blur(2px) saturate(170%);
   filter: url(#pill-lens);
@@ -825,10 +845,21 @@ footer {
   .bar-warp {
     background: color-mix(in srgb, var(--surface) 94%, var(--bg));
   }
+  /* 页面侧玻璃在不支持磨砂的浏览器里退成近实色面，避免低透明度浮层压在彩色 hero 上。 */
+  .portrait-frame,
+  .portrait-tag,
+  .blog-hero-mark,
+  .project-window,
+  .about-portrait > span {
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+  }
 }
 
-/* 触屏设备只降级玻璃折射的性能开销，动效照常，避免让手机用户失去主题切换等过渡。 */
+/* 触屏设备只降级玻璃的性能开销（磨砂减半、导航底色加实），动效照常。 */
 @media (pointer: coarse) {
+  :root {
+    --glass-blur: 8px;
+  }
   .bar-warp {
     background: color-mix(in srgb, var(--glass) 78%, var(--surface));
   }

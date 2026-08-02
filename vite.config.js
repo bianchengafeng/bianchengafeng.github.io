@@ -22,10 +22,13 @@ const pageByEntry = new Map(pages.map((page) => [`/${page.entry}`, page]));
 // 液态玻璃药丸所需的 SVG 滤镜（v2 招牌版）。
 // 三通道 feDisplacementMap 产生边缘 RGB 色散（chromatic aberration）。
 // feImage 的 href 由 src/lens-map.js 在客户端生成并注入。
+const NEUTRAL_LENS_MAP =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNoaGgAAAMEAYFL09IQAAAAAElFTkSuQmCC";
 const lensFiltersSvg = [
   '<svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true"><defs>',
   '<filter id="pill-lens" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">',
-  '<feImage class="lens-map" x="0" y="0" width="100%" height="100%" result="MAP" preserveAspectRatio="none"/>',
+  // href 默认是 1x1 中性灰（RGB 128：零位移）兜底：贴图未注入时不产生整层错位，JS 就绪后换真透镜。
+  `<feImage class="lens-map" href="${NEUTRAL_LENS_MAP}" x="0" y="0" width="100%" height="100%" result="MAP" preserveAspectRatio="none"/>`,
   '<feDisplacementMap in="SourceGraphic" in2="MAP" scale="72" xChannelSelector="R" yChannelSelector="B" result="RD"/>',
   '<feColorMatrix in="RD" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="RC"/>',
   '<feDisplacementMap in="SourceGraphic" in2="MAP" scale="64" xChannelSelector="R" yChannelSelector="B" result="GD"/>',
@@ -37,7 +40,8 @@ const lensFiltersSvg = [
   "</filter>",
   // 整条导航本体的轻折射：很小的位移，让 bar 也有"活玻璃"感但不夸张
   '<filter id="bar-lens" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">',
-  '<feImage class="lens-map" x="0" y="0" width="100%" height="100%" result="MAP" preserveAspectRatio="none"/>',
+  // href 默认是 1x1 中性灰（RGB 128：零位移）兜底：贴图未注入时不产生整层错位，JS 就绪后换真透镜。
+  `<feImage class="lens-map" href="${NEUTRAL_LENS_MAP}" x="0" y="0" width="100%" height="100%" result="MAP" preserveAspectRatio="none"/>`,
   '<feDisplacementMap in="SourceGraphic" in2="MAP" scale="18" xChannelSelector="R" yChannelSelector="B"/>',
   "</filter>",
   "</defs></svg>"
