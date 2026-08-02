@@ -31,7 +31,7 @@ jobs:
           cache: npm
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Install dependencies
         run: npm ci
@@ -57,7 +57,7 @@ jobs:
           node -e "const s = require('child_process').execSync('du -sk dist').toString().split('\t')[0]; if (+s > 800) { console.error('dist 超过 800KB: ' + s + 'KB'); process.exit(1) }"
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
@@ -70,4 +70,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
