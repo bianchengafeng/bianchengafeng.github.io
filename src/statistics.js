@@ -172,9 +172,10 @@ export function requestVisitStatistics(counterPath, timeoutMs = 10000) {
     frame.hidden = true;
     frame.tabIndex = -1;
     frame.setAttribute("aria-hidden", "true");
-    // 承载不蒜子第三方脚本的 iframe 加 sandbox：脚本被隔离到不透明源，
-    // 即便被篡改也无法以主站同源权限读写 DOM / localStorage。
-    frame.setAttribute("sandbox", "allow-scripts");
+    // 注意：不能给这个 iframe 加 sandbox——它会变成不透明源（origin 为 "null"），
+    // 导致 visit-counter.js 的 referrerOrigin === location.origin 检查永远失败，
+    // 不蒜子脚本不加载、统计全挂。同源执行的代价是不蒜子的固有属性；
+    // 主站已用 event.source + origin 校验确保只接受来自这个 frame 的消息。
 
     const cleanup = () => {
       window.removeEventListener("message", handleMessage);
@@ -183,9 +184,8 @@ export function requestVisitStatistics(counterPath, timeoutMs = 10000) {
       counterRequest = undefined;
     };
     const handleMessage = (event) => {
-      // sandbox 让 iframe 成为不透明源（origin 为 "null"）；event.source 校验保证只信这个 frame。
-      if (event.source !== frame.contentWindow) return;
-      if (event.origin !== window.location.origin && event.origin !== "null") return;
+      // 只信任这一个 frame，且来源必须是本站（同源，未加 sandbox）。
+      if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
       if (event.data?.type !== COUNTER_MESSAGE) return;
       const visitors = Number(event.data.visitors);
       const sessions = Number(event.data.sessions);
