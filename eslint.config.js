@@ -26,8 +26,8 @@ export default [
     }
   },
   {
-    // 构建配置和测试跑在 Node 里。
-    files: ["vite.config.js", "eslint.config.js", "tests/**/*.js"],
+    // 构建配置、构建脚本和测试跑在 Node 里。
+    files: ["vite.config.js", "eslint.config.js", "scripts/**/*.mjs", "tests/**/*.js"],
     languageOptions: { globals: { ...globals.node } }
   },
   prettier

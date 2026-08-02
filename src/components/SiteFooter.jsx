@@ -13,6 +13,8 @@ import { Icon } from "./Icon.jsx";
 const ACTIVITY_THROTTLE_MS = 30_000;
 
 function isLocalPreview() {
+  // SSR 构建时没有 window；本地预览判断只对浏览器有意义。
+  if (typeof window === "undefined") return false;
   const { hostname } = window.location;
   return ["localhost", "127.0.0.1"].includes(hostname) || hostname.endsWith(".local");
 }
@@ -25,8 +27,10 @@ function formatStat(localPreview, stats, unavailable, value) {
 }
 
 function useVisitStatistics() {
+  // stats 初始为 null（"读取中"）：服务器渲染与 hydrate 首帧保持一致，
+  // 缓存值在 effect 里读取对齐，避免 hydration mismatch。
   const [localPreview] = useState(isLocalPreview);
-  const [stats, setStats] = useState(() => readStatisticsCache());
+  const [stats, setStats] = useState(null);
   const [unavailable, setUnavailable] = useState(false);
 
   useEffect(() => {
@@ -68,6 +72,9 @@ function useVisitStatistics() {
       const cached = readStatisticsCache();
       if (cached && !cancelled) setStats(cached);
     };
+
+    // hydrate 后先读缓存对齐显示（SSR 渲染的是"读取中"，这里同步避免一直停在加载态）。
+    syncCachedStatistics();
 
     // 首次计数推迟到 window load 之后：隐藏 iframe + 不蒜子第三方脚本
     // 不该挤进首屏加载窗口，会话判定基于时间戳，延后几秒不影响正确性。

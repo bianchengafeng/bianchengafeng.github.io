@@ -1,5 +1,5 @@
 import React from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import { identity } from "../content/site.js";
 import { SiteHeader } from "./SiteHeader.jsx";
 import { SiteFooter } from "./SiteFooter.jsx";
@@ -27,7 +27,7 @@ const contentFallback = (
   </div>
 );
 
-function SiteShell({ active, children }) {
+export function SiteShell({ active, children }) {
   const { theme, toggleTheme } = useTheme();
   return (
     <>
@@ -48,11 +48,19 @@ function SiteShell({ active, children }) {
 /**
  * 每个页面入口调用一次。页面标题与描述已由构建期注入静态 HTML，
  * 这里不再在运行时改写 head。
+ * 构建期预渲染过 #root 内容的页面对应的浏览器环境走 hydrateRoot 接管；
+ * 未预渲染（如 dev server）走 createRoot。
  */
 export function mountPage(active, page) {
-  createRoot(document.getElementById("root")).render(
+  const rootElement = document.getElementById("root");
+  const children = (
     <React.StrictMode>
       <SiteShell active={active}>{page}</SiteShell>
     </React.StrictMode>
   );
+  if (rootElement.hasChildNodes()) {
+    hydrateRoot(rootElement, children);
+  } else {
+    createRoot(rootElement).render(children);
+  }
 }

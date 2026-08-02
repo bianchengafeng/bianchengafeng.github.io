@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { identity, navPages, site } from "../content/site.js";
 import { Icon } from "./Icon.jsx";
 import { generateLensMap } from "../lens-map.js";
+import { useIsomorphicLayoutEffect } from "../use-isomorphic-layout-effect.js";
 
 /**
  * 激活态液态玻璃药丸 —— v2 招牌版。
@@ -53,7 +54,7 @@ function NavGlassPill({ active }) {
   }, []);
 
   // 首次绘制前完成定位，避免药丸从宽度 0 闪入；active 变化时才触发扫光。
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     place(activeRef.current, prevActive.current !== active);
     prevActive.current = active;
   }, [active, place]);
