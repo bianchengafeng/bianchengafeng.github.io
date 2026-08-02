@@ -140,7 +140,7 @@
 
 @media (max-width: 680px) {
   .not-found-page {
-    padding-top: 136px;
+    padding-top: 112px;
   }
   .not-found-stage {
     grid-template-columns: 1fr;

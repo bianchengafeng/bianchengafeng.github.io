@@ -238,19 +238,21 @@ h3 {
   text-underline-offset: 3px;
 }
 
-/* 顶栏完全沿用 design-prototypes/v2-signature.html：居中、紧凑、单排。 */
+/* 顶栏：v2 原型的紧凑居中玻璃 bar + 原版的品牌头像区与指针跟随柔光。 */
 .site-header {
+  --glass-x: 50%;
+  --glass-y: 0%;
   position: fixed;
   top: 14px;
   left: 50%;
   z-index: 100;
   display: flex;
-  gap: 14px;
+  gap: 12px;
   align-items: center;
   width: max-content;
   max-width: calc(100% - 16px);
   height: 62px;
-  padding: 0 10px;
+  padding: 0 10px 0 12px;
   border: 0.5px solid var(--glass-border);
   border-radius: 31px;
   box-shadow:
@@ -277,10 +279,67 @@ h3 {
   backdrop-filter: blur(14px) saturate(185%);
   filter: url(#bar-lens);
 }
+/* 指针跟随的柔光：hover 时一片高光跟着鼠标在玻璃上游走。 */
+.bar-warp::after {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120px 60px ellipse at var(--glass-x) var(--glass-y),
+    rgba(255, 255, 255, 0.38),
+    rgba(255, 255, 255, 0.08) 45%,
+    transparent 75%
+  );
+  content: "";
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.site-header:hover .bar-warp::after {
+  opacity: 1;
+}
 .site-header nav,
+.site-header .site-brand,
 .site-header .theme-toggle {
   position: relative;
   z-index: 1;
+}
+/* 品牌区：头像 + 名字，右侧一条渐隐分隔线与导航分组。 */
+.site-brand {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  color: var(--ink);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.site-brand:hover {
+  color: var(--accent-strong);
+}
+.site-brand img {
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--glass-border);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--accent) 24%, transparent);
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.site-brand::after {
+  width: 1px;
+  height: 22px;
+  margin-left: 12px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--glass-border) 30%,
+    var(--glass-border) 70%,
+    transparent
+  );
+  content: "";
 }
 .site-header nav {
   display: flex;
@@ -676,6 +735,16 @@ footer {
   }
   .site-header {
     top: 8px;
+    gap: 10px;
+  }
+  /* 窄屏只留头像做身份标识：名字与分隔线让位给导航标签。 */
+  .site-brand span,
+  .site-brand::after {
+    display: none;
+  }
+  .site-brand img {
+    width: 32px;
+    height: 32px;
   }
   .site-header nav a {
     padding-inline: clamp(11px, 3.7vw, 18px);
@@ -703,14 +772,18 @@ footer {
 
 @media (max-width: 390px) {
   .site-header {
-    gap: 7px;
+    gap: 6px;
     padding-inline: 6px;
+  }
+  .site-brand img {
+    width: 30px;
+    height: 30px;
   }
   .site-header nav {
     gap: 0;
   }
   .site-header nav a {
-    padding-inline: 10px;
+    padding-inline: 9px;
   }
   .theme-toggle {
     width: 36px;

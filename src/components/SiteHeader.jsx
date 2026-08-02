@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { navPages } from "../content/site.js";
+import { identity, navPages, site } from "../content/site.js";
 import { Icon } from "./Icon.jsx";
 import { generateLensMap } from "../lens-map.js";
 
@@ -87,9 +87,28 @@ function NavGlassPill({ active }) {
 export function SiteHeader({ active, theme, onToggleTheme }) {
   const toggleLabel = theme === "dark" ? "切换至浅色主题" : "切换至深色主题";
 
+  // 高光跟随指针：把坐标写成 CSS 变量，玻璃上会有一片柔光跟着鼠标走。
+  const trackGlassPointer = (event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    event.currentTarget.style.setProperty("--glass-x", `${event.clientX - rect.left}px`);
+    event.currentTarget.style.setProperty("--glass-y", `${event.clientY - rect.top}px`);
+  };
+  const resetGlassPointer = (event) => {
+    event.currentTarget.style.removeProperty("--glass-x");
+    event.currentTarget.style.removeProperty("--glass-y");
+  };
+
   return (
-    <header className="site-header">
+    <header
+      className="site-header"
+      onPointerMove={trackGlassPointer}
+      onPointerLeave={resetGlassPointer}
+    >
       <span className="bar-warp" aria-hidden="true" />
+      <a className="site-brand" href="/" aria-label={`${identity.name}的个人主页`}>
+        <img src={site.socialImage} alt="" width="34" height="34" draggable="false" />
+        <span>{identity.name}</span>
+      </a>
       <NavGlassPill active={active} />
       <button
         className="theme-toggle"

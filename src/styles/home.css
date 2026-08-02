@@ -817,7 +817,8 @@ a.input-placeholder:hover > i {
 @media (max-width: 680px) {
   .home-intro {
     gap: 22px;
-    padding: 152px 0 40px;
+    /* 单排顶栏只占 8 + 62px，顶部留白相应收窄 */
+    padding: 120px 0 40px;
   }
   .intro-copy h1 {
     max-width: 14ch;
