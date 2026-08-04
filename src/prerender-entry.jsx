@@ -7,6 +7,8 @@ import { ProjectsPage } from "./pages/ProjectsPage.jsx";
 import { WritingPage } from "./pages/WritingPage.jsx";
 import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
+export { pages } from "./content/site.js";
+
 const components = {
   home: HomePage,
   about: AboutPage,

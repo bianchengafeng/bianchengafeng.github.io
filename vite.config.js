@@ -8,11 +8,13 @@ import {
   renderNoscriptBody,
   renderRobots,
   renderSeoTags,
-  renderSitemap
+  renderSitemap,
+  siteLastModified
 } from "./build/seo.js";
 import { themeBootScript } from "./build/theme-script.js";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
+const siteUpdatedAt = siteLastModified();
 
 const resolveEntry = (entry) => fileURLToPath(new URL(`./${entry}`, import.meta.url));
 
@@ -77,6 +79,9 @@ function siteMetadataPlugin() {
 export default defineConfig({
   root,
   plugins: [react(), siteMetadataPlugin()],
+  define: {
+    "globalThis.__SITE_UPDATED_AT__": JSON.stringify(siteUpdatedAt)
+  },
   build: {
     outDir: "dist",
     rollupOptions: {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { loadWritingFeed, parseWritingFeed } from "../src/writing-feed.js";
+import { loadWritingFeed, loadWritingFeedState, parseWritingFeed } from "../src/writing-feed.js";
 
 function textNode(text) {
   return { textContent: text };
@@ -106,4 +106,36 @@ test("调用方传入的 signal 会原样透传给 fetch", async () => {
     signal: controller.signal
   });
   assert.equal(receivedSignal, controller.signal);
+});
+
+test("页面读取状态在失败时返回可重试的错误状态，不保留旧文章", async () => {
+  const state = await loadWritingFeedState("https://example.com/index.xml", "https://example.com", {
+    fetchFeed: async () => ({ ok: false, status: 503 })
+  });
+  assert.deepEqual(state, { status: "error", posts: [] });
+});
+
+test("页面读取状态在再次调用成功后返回最新文章", async () => {
+  let attempts = 0;
+  const fetchFeed = async () => {
+    attempts += 1;
+    if (attempts === 1) return { ok: false, status: 503 };
+    return { ok: true, text: async () => "<rss />" };
+  };
+  const options = { fetchFeed, parseXml: createParser() };
+
+  const failed = await loadWritingFeedState(
+    "https://example.com/index.xml",
+    "https://example.com",
+    options
+  );
+  const retried = await loadWritingFeedState(
+    "https://example.com/index.xml",
+    "https://example.com",
+    options
+  );
+
+  assert.equal(attempts, 2);
+  assert.deepEqual(failed, { status: "error", posts: [] });
+  assert.deepEqual(retried, { status: "ready", posts: [] });
 });

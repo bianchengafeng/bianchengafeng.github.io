@@ -8,13 +8,19 @@
  * 运行时机：vite build 之后（package.json 的 build script）。
  */
 import { build } from "esbuild";
+import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
-import { pages } from "../src/content/site.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
+const outputRoot = process.env.PRERENDER_OUT_DIR || join(root, "dist");
 const outfile = join(root, "node_modules/.cache/prerender-bundle.cjs");
+const siteUpdatedAt = execSync("git log -1 --format=%cs -- .", {
+  cwd: root,
+  encoding: "utf8",
+  stdio: ["ignore", "pipe", "ignore"]
+}).trim();
 mkdirSync(dirname(outfile), { recursive: true });
 
 // 用 esbuild（vite 的传递依赖）把含 JSX 的渲染入口打包成 Node 可 require 的 CJS。
@@ -25,17 +31,18 @@ await build({
   platform: "node",
   target: "node18",
   outfile,
+  define: { "globalThis.__SITE_UPDATED_AT__": JSON.stringify(siteUpdatedAt) },
   jsx: "automatic",
   loader: { ".jsx": "jsx", ".css": "empty" }
 });
 
-const { renderPage } = await import(pathToFileURL(outfile).href);
+const { pages, renderPage } = await import(pathToFileURL(outfile).href);
 
 let injected = 0;
 for (const page of pages) {
   if (page.injectSeo === false) continue; // visit-counter 隐藏页不套外壳
   const htmlPath = page.entry === "index.html" ? "index.html" : page.entry;
-  const fullPath = join(root, "dist", htmlPath);
+  const fullPath = join(outputRoot, htmlPath);
   const html = readFileSync(fullPath, "utf8");
   if (!html.includes('<div id="root"></div>')) {
     console.warn(`跳过 ${htmlPath}：未找到空的 #root`);

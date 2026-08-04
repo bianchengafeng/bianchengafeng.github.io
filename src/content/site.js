@@ -1,4 +1,5 @@
 const currentYear = String(new Date().getFullYear());
+const siteUpdatedAt = globalThis.__SITE_UPDATED_AT__ || "2026-08-02";
 
 // 邮箱拆开存放，避免直接以完整字符串出现在源码和 HTML 里被爬虫正则抓走。
 const emailUser = "3095635643";
@@ -22,7 +23,8 @@ export const siteContent = {
     blogName: "阿峰的编程笔记",
     siteLabel: "AFENG · PERSONAL SITE",
     copyrightYear: currentYear,
-    lastUpdatedYear: currentYear
+    establishedYear: "2026",
+    lastUpdated: siteUpdatedAt
   },
 
   // 路由、构建入口、导航和 SEO 的唯一来源。

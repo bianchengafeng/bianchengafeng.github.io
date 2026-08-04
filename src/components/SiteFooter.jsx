@@ -204,7 +204,16 @@ export function SiteFooter() {
         <small>
           © {identity.copyrightYear} {identity.name} · All rights reserved.
         </small>
-        <span>Personal site · Last updated {identity.lastUpdatedYear}</span>
+        <div className="footer-dates">
+          <span>
+            个人网站 · 建立于 {identity.establishedYear}
+            <small>Personal site · Established {identity.establishedYear}</small>
+          </span>
+          <span>
+            最近更新于 {identity.lastUpdated}
+            <small>Last updated {identity.lastUpdated}</small>
+          </span>
+        </div>
       </div>
     </footer>
   );

@@ -47,3 +47,13 @@ export async function loadWritingFeed(feedUrl, blogUrl, options = {}) {
   if (!response.ok) throw new Error(`RSS 请求失败：${response.status}`);
   return parseWritingFeed(await response.text(), blogUrl, parseXml);
 }
+
+// 页面初次读取与手动重试共用同一状态边界，失败不恢复旧文章。
+export async function loadWritingFeedState(feedUrl, blogUrl, options = {}) {
+  try {
+    const posts = await loadWritingFeed(feedUrl, blogUrl, options);
+    return { status: "ready", posts };
+  } catch {
+    return { status: "error", posts: [] };
+  }
+}

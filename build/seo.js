@@ -1,6 +1,8 @@
 import { execSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { identity, pages, site, siteContent } from "../src/content/site.js";
 
+const projectRoot = fileURLToPath(new URL("..", import.meta.url));
 const absoluteUrl = (path) => new URL(path, site.origin).href;
 
 const escapeHtml = (value) =>
@@ -87,21 +89,35 @@ const pageSourceFiles = {
 // sitemap 的 lastmod 必须反映真实内容变更：每次部署都把全部页面标成"今天"
 // 会长期失实，被 Google 整体忽略。取这些文件里最后一次 git 提交日期；
 // 无 git（如非仓库构建）时回退到构建日期。
+function readGitDate(
+  files,
+  runGit = execSync,
+  fallbackDate = new Date().toISOString().slice(0, 10)
+) {
+  try {
+    const date = runGit(`git log -1 --format=%cs -- ${files}`, {
+      cwd: projectRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"]
+    }).trim();
+    return date || fallbackDate;
+  } catch {
+    return fallbackDate;
+  }
+}
+
 export function pageLastModified(page) {
   const files = [
     ...(pageSourceFiles[page.key] || [page.entry]),
     "src/content/site.js",
     "src/styles/base.css"
   ].join(" ");
-  try {
-    const date = execSync(`git log -1 --format=%cs -- ${files}`, {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"]
-    }).trim();
-    return date || new Date().toISOString().slice(0, 10);
-  } catch {
-    return new Date().toISOString().slice(0, 10);
-  }
+  return readGitDate(files);
+}
+
+// 页脚展示整个网站最后一次已提交更新；构建时注入，避免客户端时间与预渲染结果不一致。
+export function siteLastModified(runGit, fallbackDate) {
+  return readGitDate(".", runGit, fallbackDate);
 }
 
 export function renderSitemap(lastModifiedAt) {

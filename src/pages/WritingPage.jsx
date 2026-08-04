@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { identity, site, writing } from "../content/site.js";
 import { Icon } from "../components/Icon.jsx";
-import { loadWritingFeed } from "../writing-feed.js";
+import { loadWritingFeedState } from "../writing-feed.js";
 import "../styles/writing.css";
 
 const FEED_STATES = {
@@ -21,34 +21,43 @@ const FEED_STATES = {
 };
 
 function useWritingFeed() {
+  const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState({ status: "loading", posts: [] });
 
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
-    loadWritingFeed(writing.feedUrl, identity.blogUrl, { signal: controller.signal })
-      .then((posts) => {
-        if (!cancelled) setState({ status: "ready", posts });
-      })
-      .catch(() => {
-        if (!cancelled) setState({ status: "error", posts: [] });
-      });
+    loadWritingFeedState(writing.feedUrl, identity.blogUrl, { signal: controller.signal }).then(
+      (nextState) => {
+        if (!cancelled) setState(nextState);
+      }
+    );
     return () => {
       cancelled = true;
       controller.abort();
     };
-  }, []);
+  }, [attempt]);
 
-  return state;
+  const retry = () => {
+    setState({ status: "loading", posts: [] });
+    setAttempt((current) => current + 1);
+  };
+
+  return { ...state, retry };
 }
 
-function FeedState({ variant }) {
+function FeedState({ variant, onRetry }) {
   const { title, text, className = "" } = FEED_STATES[variant];
   return (
     <div className={`blog-feed-state ${className}`.trim()} role="status">
       <Icon name="article" />
       <strong>{title}</strong>
       <p>{text}</p>
+      {variant === "error" && (
+        <button className="blog-feed-retry" type="button" onClick={onRetry}>
+          重新读取
+        </button>
+      )}
     </div>
   );
 }
@@ -98,7 +107,7 @@ function BlogPost({ post, index }) {
 }
 
 function BlogFeed() {
-  const { status, posts } = useWritingFeed();
+  const { status, posts, retry } = useWritingFeed();
   const variant = status === "ready" ? (posts.length ? null : "empty") : status;
 
   return (
@@ -109,7 +118,7 @@ function BlogFeed() {
         <p>点击任意条目后，将前往 bianchengafeng.xyz 阅读全文。</p>
       </header>
       {variant ? (
-        <FeedState variant={variant} />
+        <FeedState variant={variant} onRetry={retry} />
       ) : (
         <div className="blog-article-grid">
           {posts.map((post, index) => (
